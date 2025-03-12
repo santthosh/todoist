@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { DarkThemeToggle, Navbar as FlowbiteNavbar, Tooltip } from 'flowbite-react';
+import { HiCloud } from 'react-icons/hi';
 
 export default function Navbar() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -29,9 +30,10 @@ export default function Navbar() {
   return (
     <FlowbiteNavbar fluid className="border-b border-gray-200 dark:border-gray-700 py-3">
       <FlowbiteNavbar.Brand href="/">
+        <HiCloud className="mr-2 h-6 w-6 text-blue-500" />
         <div className="flex flex-col">
           <span className="whitespace-nowrap text-xl font-semibold dark:text-white">
-            todoist
+            todoist.cloud
           </span>
           <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline-block">
             Easy to manage tasks and reminders

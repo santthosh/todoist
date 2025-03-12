@@ -1,4 +1,5 @@
-# todoist
+# todoist.cloud
+
 **Easy to manage tasks and reminders**
 
 [![Run Tests](https://github.com/santthosh/todoist/actions/workflows/test.yml/badge.svg)](https://github.com/santthosh/todoist/actions/workflows/test.yml)
@@ -10,6 +11,15 @@
 [![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat&logo=redis)](https://redis.io/)
 [![Jest](https://img.shields.io/badge/Jest-29-C21325?style=flat&logo=jest)](https://jestjs.io/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+<div align="center">
+  <a href="https://todoist.cloud">
+    <img src="public/cloud-icon.svg" alt="Todoist Cloud Logo" width="100" height="100">
+  </a>
+  <h3 align="center">
+    <a href="https://todoist.cloud">Visit Todoist Cloud</a>
+  </h3>
+</div>
 
 ## Features
 
@@ -24,6 +34,10 @@ This application is a full-featured task management application that allows you 
 - Delete lists and items
 
 The application uses PostgreSQL for data storage and Redis for caching reminders.
+
+## Live Demo
+
+Check out the live application at [https://todoist.cloud](https://todoist.cloud)
 
 ## Getting Started
 
@@ -140,6 +154,8 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+This project is deployed at [https://todoist.cloud](https://todoist.cloud) using Vercel's platform.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
