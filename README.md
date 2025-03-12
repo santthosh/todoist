@@ -1,6 +1,17 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# todoist
+**Easy to manage tasks and reminders**
 
-## Todoist Features
+[![Run Tests](https://github.com/santthosh/todoist/actions/workflows/test.yml/badge.svg)](https://github.com/santthosh/todoist/actions/workflows/test.yml)
+[![Next.js](https://img.shields.io/badge/Next.js-15.2.2-black?style=flat&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=flat&logo=tailwind-css)](https://tailwindcss.com/)
+[![Flowbite](https://img.shields.io/badge/Flowbite-2.3-0CA4E6?style=flat&logo=flowbite)](https://flowbite.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-336791?style=flat&logo=postgresql)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat&logo=redis)](https://redis.io/)
+[![Jest](https://img.shields.io/badge/Jest-29-C21325?style=flat&logo=jest)](https://jestjs.io/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Features
 
 This application is a full-featured task management application that allows you to:
 
@@ -131,3 +142,36 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Contributing
+
+Contributions are welcome! Here's how you can contribute to this project:
+
+### Code of Conduct
+
+Please be respectful and inclusive when contributing to this project. Harassment or abusive behavior will not be tolerated.
+
+### How to Contribute
+
+1. **Fork the repository** - Create your own copy of the project to work on.
+2. **Create a branch** - Make your changes in a new branch (`git checkout -b feature/amazing-feature`).
+3. **Make your changes** - Implement your feature or bug fix.
+4. **Run tests** - Ensure all tests pass with `npm test`.
+5. **Commit your changes** - Use clear commit messages that explain what you've done.
+6. **Push to your branch** - Upload your changes to your forked repository.
+7. **Create a Pull Request** - Submit a PR to the main repository for review.
+
+### Pull Request Guidelines
+
+- Ensure your code passes all tests
+- Update documentation as needed
+- Include screenshots or examples if relevant
+- Keep PRs focused on a single feature or fix
+
+### Development Setup
+
+Follow the "Getting Started" and "Local Development with Docker Compose" sections above to set up your development environment.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
