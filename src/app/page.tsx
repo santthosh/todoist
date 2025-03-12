@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TodoList } from './components/TodoList';
 import { CreateTodoList } from './components/CreateTodoList';
 import { TodoListType, TodoItemType } from '@/types';
-import { Button, Alert, Spinner, Badge, ButtonGroup } from 'flowbite-react';
+import { Button, Alert, Spinner, ButtonGroup } from 'flowbite-react';
 import { HiArchive, HiInbox, HiPlus } from 'react-icons/hi';
 import { getSessionId } from '@/lib/session';
 
@@ -15,41 +15,45 @@ export default function Home() {
   const [showArchived, setShowArchived] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
 
-  // Initialize session ID
   useEffect(() => {
-    setSessionId(getSessionId());
+    // Get or create a session ID
+    const sid = getSessionId();
+    setSessionId(sid);
   }, []);
 
-  // Fetch todo lists
-  const fetchTodoLists = async () => {
-    if (!sessionId) return; // Don't fetch if session ID is not available yet
+  // Wrap fetchTodoLists in useCallback
+  const fetchTodoLists = useCallback(async () => {
+    if (!sessionId) return;
     
     try {
       setLoading(true);
+      setError(null);
+      
       const response = await fetch('/api/todo-lists', {
         headers: {
           'x-session-id': sessionId
         }
       });
+      
       if (!response.ok) {
         throw new Error('Failed to fetch todo lists');
       }
+      
       const data = await response.json();
       setTodoLists(data);
-      setError(null);
     } catch (err) {
-      setError('Error loading todo lists. Please try again.');
-      console.error(err);
+      console.error('Error fetching todo lists:', err);
+      setError('Failed to load todo lists. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [sessionId]);
 
   useEffect(() => {
     if (sessionId) {
       fetchTodoLists();
     }
-  }, [sessionId]);
+  }, [fetchTodoLists, sessionId]);
 
   // Create a new todo list
   const handleCreateList = async (title: string, description?: string) => {

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { TodoItemType } from '@/types';
-import { Button, Card, Checkbox, Label, TextInput, Textarea, Tooltip } from 'flowbite-react';
-import { HiPencil, HiTrash, HiPlus, HiClock } from 'react-icons/hi';
+import { Button, Checkbox, Label, TextInput, Textarea } from 'flowbite-react';
+import { HiPencil, HiTrash, HiClock } from 'react-icons/hi';
+import { formatDate } from '@/lib/utils';
 
 interface TodoItemProps {
   item: TodoItemType;
@@ -14,11 +15,11 @@ interface TodoItemProps {
 
 export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddingReminder, setIsAddingReminder] = useState(false);
   const [title, setTitle] = useState(item.title);
   const [description, setDescription] = useState(item.description || '');
   const [dueDate, setDueDate] = useState(item.dueDate || '');
-  const [isAddingReminder, setIsAddingReminder] = useState(false);
-  const [reminderAt, setReminderAt] = useState('');
+  const [reminderDate, setReminderDate] = useState('');
 
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,26 +33,11 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
 
   const handleAddReminder = (e: React.FormEvent) => {
     e.preventDefault();
-    if (reminderAt) {
-      onAddReminder(item.id, reminderAt);
-      setReminderAt('');
+    if (reminderDate) {
+      onAddReminder(item.id, reminderDate);
+      setReminderDate('');
       setIsAddingReminder(false);
     }
-  };
-
-  const formatDate = (dateString?: string, isReminder = false) => {
-    if (!dateString) return null;
-    
-    const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: 'short',
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-    
-    return date.toLocaleString(undefined, options);
   };
 
   const isPastDue = item.dueDate && new Date(item.dueDate) < new Date();
@@ -162,7 +148,7 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
                   className="p-1 text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
                   title="Add Reminder"
                 >
-                  <HiPlus className="h-3.5 w-3.5" />
+                  <HiClock className="h-3.5 w-3.5" />
                 </button>
               )}
             </div>
@@ -171,12 +157,12 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
           {isAddingReminder && (
             <form onSubmit={handleAddReminder} className="mt-3 space-y-2">
               <div>
-                <Label htmlFor={`reminderAt-${item.id}`} value="Reminder Date & Time" className="text-xs" />
+                <Label htmlFor={`reminderDate-${item.id}`} value="Reminder Date & Time" className="text-xs" />
                 <TextInput
-                  id={`reminderAt-${item.id}`}
+                  id={`reminderDate-${item.id}`}
                   type="datetime-local"
-                  value={reminderAt}
-                  onChange={(e) => setReminderAt(e.target.value)}
+                  value={reminderDate}
+                  onChange={(e) => setReminderDate(e.target.value)}
                   required
                   sizing="sm"
                 />

@@ -175,3 +175,37 @@ Follow the "Getting Started" and "Local Development with Docker Compose" section
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Continuous Integration and Deployment (CI/CD)
+
+This project uses GitHub Actions for continuous integration and deployment to Vercel. The workflow is configured to:
+
+1. Run all tests when code is pushed to the `main` branch or when a pull request is created
+2. Automatically deploy to Vercel when tests pass on the `main` branch
+
+### CI/CD Workflow
+
+The CI/CD pipeline consists of two main jobs:
+
+1. **Test**: Runs all tests to ensure code quality
+2. **Deploy**: Deploys the application to Vercel if all tests pass (only on the `main` branch)
+
+### Setting Up Vercel Deployment
+
+To set up automatic deployment to Vercel, you need to add the following secrets to your GitHub repository:
+
+- `VERCEL_TOKEN`: Your Vercel API token
+- `VERCEL_ORG_ID`: Your Vercel organization ID
+- `VERCEL_PROJECT_ID`: Your Vercel project ID
+
+You can find these values in your Vercel project settings.
+
+### Deployment Configuration
+
+The deployment configuration is defined in the following files:
+
+- `.github/workflows/ci-cd.yml`: The main CI/CD workflow using Vercel CLI
+- `.github/workflows/vercel-deploy.yml`: An alternative workflow using the official Vercel GitHub Action
+- `vercel.json`: Configuration for Vercel deployment
+
+You can choose which workflow to use based on your preferences. The `ci-cd.yml` workflow provides more control over the deployment process, while the `vercel-deploy.yml` workflow is simpler and uses the official Vercel GitHub Action.

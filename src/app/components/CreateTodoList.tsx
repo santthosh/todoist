@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Button, Card, Label, TextInput, Textarea } from 'flowbite-react';
-import { HiPlus } from 'react-icons/hi';
 
 interface CreateTodoListProps {
   onCreateList: (title: string, description?: string) => void;

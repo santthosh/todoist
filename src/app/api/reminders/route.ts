@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/reminders - Get all reminders
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // In a real application, you would filter reminders by session ID
     // by joining with todoItem and todoList
