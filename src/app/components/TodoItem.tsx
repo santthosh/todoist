@@ -120,7 +120,7 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
                       <span className="truncate">
                         {item.reminders.length > 1 
                           ? `${item.reminders.length} reminders` 
-                          : formatDate(item.reminders[0].reminderAt, true)}
+                          : formatDate(item.reminders[0].reminderAt)}
                       </span>
                     </p>
                   </div>

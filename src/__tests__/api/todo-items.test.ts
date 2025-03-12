@@ -7,18 +7,15 @@ import { normalizeDates } from '../utils/testHelpers';
 // Mock Prisma client
 jest.mock('@/lib/db', () => ({
   todoItem: {
-    findUnique: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
+    findUnique: jest.fn().mockResolvedValue(null),
+    create: jest.fn().mockResolvedValue(null),
+    update: jest.fn().mockResolvedValue(null),
+    delete: jest.fn().mockResolvedValue(null),
   },
   todoList: {
-    findUnique: jest.fn(),
+    findUnique: jest.fn().mockResolvedValue(null),
   }
 }));
-
-// Mock session ID for tests
-const TEST_SESSION_ID = 'test-session-id';
 
 describe('Todo Items API Routes', () => {
   beforeEach(() => {
@@ -30,7 +27,7 @@ describe('Todo Items API Routes', () => {
       const mockTodoList = {
         id: 'list-1',
         title: 'Test List',
-        sessionId: TEST_SESSION_ID
+        sessionId: 'test-session'
       };
 
       const mockTodoItem = {
@@ -45,16 +42,19 @@ describe('Todo Items API Routes', () => {
         reminders: [],
       };
 
-      (prisma.todoList.findUnique as jest.Mock).mockResolvedValue(mockTodoList);
-      (prisma.todoItem.create as jest.Mock).mockResolvedValue(mockTodoItem);
+      prisma.todoList.findUnique.mockResolvedValue(mockTodoList);
+      prisma.todoItem.create.mockResolvedValue(mockTodoItem);
 
       const request = new NextRequest('http://localhost:3000/api/todo-items', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': TEST_SESSION_ID
-        },
-        body: JSON.stringify({
+          'x-session-id': 'test-session'
+        }
+      });
+      
+      // Mock the request body
+      Object.defineProperty(request, 'json', {
+        value: jest.fn().mockResolvedValue({
           title: 'New Item',
           description: 'New Description',
           dueDate: '2023-12-31T12:00:00.000Z',
@@ -86,10 +86,13 @@ describe('Todo Items API Routes', () => {
       const request = new NextRequest('http://localhost:3000/api/todo-items', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': TEST_SESSION_ID
-        },
-        body: JSON.stringify({
+          'x-session-id': 'test-session'
+        }
+      });
+      
+      // Mock the request body with missing title
+      Object.defineProperty(request, 'json', {
+        value: jest.fn().mockResolvedValue({
           description: 'New Description',
           dueDate: '2023-12-31T12:00:00.000Z',
         }),
@@ -118,19 +121,27 @@ describe('Todo Items API Routes', () => {
         reminders: [],
         todoList: {
           id: 'list-1',
-          sessionId: TEST_SESSION_ID
+          sessionId: 'test-session'
         }
       };
 
-      (prisma.todoItem.findUnique as jest.Mock).mockResolvedValue(mockTodoItem);
+      prisma.todoItem.findUnique.mockResolvedValue(mockTodoItem);
 
-      const params = { id: '1' };
       const request = new NextRequest('http://localhost:3000/api/todo-items/1', {
         headers: {
-          'x-session-id': TEST_SESSION_ID
+          'x-session-id': 'test-session'
         }
       });
-      const response = await GET(request, { params });
+      
+      // Mock the nextUrl.pathname property
+      Object.defineProperty(request, 'nextUrl', {
+        value: {
+          pathname: '/api/todo-items/1'
+        },
+        writable: true
+      });
+      
+      const response = await GET(request);
       const data = await response.json();
 
       expect(prisma.todoItem.findUnique).toHaveBeenCalledTimes(1);
@@ -146,15 +157,23 @@ describe('Todo Items API Routes', () => {
     });
 
     it('returns 404 if todo item is not found', async () => {
-      (prisma.todoItem.findUnique as jest.Mock).mockResolvedValue(null);
+      prisma.todoItem.findUnique.mockResolvedValue(null);
 
-      const params = { id: '999' };
       const request = new NextRequest('http://localhost:3000/api/todo-items/999', {
         headers: {
-          'x-session-id': TEST_SESSION_ID
+          'x-session-id': 'test-session'
         }
       });
-      const response = await GET(request, { params });
+      
+      // Mock the nextUrl.pathname property
+      Object.defineProperty(request, 'nextUrl', {
+        value: {
+          pathname: '/api/todo-items/999'
+        },
+        writable: true
+      });
+      
+      const response = await GET(request);
       const data = await response.json();
 
       expect(prisma.todoItem.findUnique).toHaveBeenCalledTimes(1);
@@ -165,7 +184,6 @@ describe('Todo Items API Routes', () => {
 
   describe('PATCH /api/todo-items/[id]', () => {
     it('updates a todo item', async () => {
-      const params = { id: '1' };
       const requestBody = {
         title: 'Updated Item',
         description: 'Updated Description',
@@ -173,13 +191,24 @@ describe('Todo Items API Routes', () => {
         dueDate: '2024-01-15T12:00:00.000Z'
       };
       
-      const request = new NextRequest(`http://localhost/api/todo-items/${params.id}`, {
+      const request = new NextRequest('http://localhost:3000/api/todo-items/1', {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': TEST_SESSION_ID
+          'x-session-id': 'test-session'
+        }
+      });
+      
+      // Mock the nextUrl.pathname property
+      Object.defineProperty(request, 'nextUrl', {
+        value: {
+          pathname: '/api/todo-items/1'
         },
-        body: JSON.stringify(requestBody)
+        writable: true
+      });
+      
+      // Mock the request body
+      Object.defineProperty(request, 'json', {
+        value: jest.fn().mockResolvedValue(requestBody),
       });
 
       prisma.todoItem.findUnique.mockResolvedValue({
@@ -190,7 +219,7 @@ describe('Todo Items API Routes', () => {
         dueDate: new Date('2023-12-31T12:00:00.000Z'),
         todoListId: '1',
         todoList: {
-          sessionId: TEST_SESSION_ID
+          sessionId: 'test-session'
         }
       });
 
@@ -203,7 +232,7 @@ describe('Todo Items API Routes', () => {
         todoListId: '1'
       });
 
-      const response = await PATCH(request, { params });
+      const response = await PATCH(request);
       const data = await response.json();
 
       expect(prisma.todoItem.findUnique).toHaveBeenCalledTimes(1);
@@ -224,22 +253,29 @@ describe('Todo Items API Routes', () => {
         title: 'Test Item',
         todoList: {
           id: 'list-1',
-          sessionId: TEST_SESSION_ID
+          sessionId: 'test-session'
         }
       };
 
-      (prisma.todoItem.findUnique as jest.Mock).mockResolvedValue(mockExistingTodoItem);
-      (prisma.todoItem.delete as jest.Mock).mockResolvedValue({});
+      prisma.todoItem.findUnique.mockResolvedValue(mockExistingTodoItem);
+      prisma.todoItem.delete.mockResolvedValue({});
 
-      const params = { id: '1' };
       const request = new NextRequest('http://localhost:3000/api/todo-items/1', {
         method: 'DELETE',
         headers: {
-          'x-session-id': TEST_SESSION_ID
+          'x-session-id': 'test-session'
         }
       });
+      
+      // Mock the nextUrl.pathname property
+      Object.defineProperty(request, 'nextUrl', {
+        value: {
+          pathname: '/api/todo-items/1'
+        },
+        writable: true
+      });
 
-      const response = await DELETE(request, { params });
+      const response = await DELETE(request);
 
       expect(prisma.todoItem.findUnique).toHaveBeenCalledTimes(1);
       expect(prisma.todoItem.delete).toHaveBeenCalledTimes(1);

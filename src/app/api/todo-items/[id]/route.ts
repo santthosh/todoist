@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 
 // GET /api/todo-items/[id] - Get a specific todo item
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
-    const id = params.id;
+    // Extract the id from the URL
+    const id = request.nextUrl.pathname.split('/').pop();
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Todo item ID is required' }, { status: 400 });
+    }
+    
     const sessionId = request.headers.get('x-session-id') || '';
     
     const todoItem = await prisma.todoItem.findUnique({
@@ -37,12 +40,15 @@ export async function GET(
 }
 
 // PATCH /api/todo-items/[id] - Update a todo item
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest) {
   try {
-    const id = params.id;
+    // Extract the id from the URL
+    const id = request.nextUrl.pathname.split('/').pop();
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Todo item ID is required' }, { status: 400 });
+    }
+    
     const sessionId = request.headers.get('x-session-id') || '';
     const data = await request.json();
     
@@ -74,12 +80,15 @@ export async function PATCH(
 }
 
 // DELETE /api/todo-items/[id] - Delete a todo item
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest) {
   try {
-    const id = params.id;
+    // Extract the id from the URL
+    const id = request.nextUrl.pathname.split('/').pop();
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Todo item ID is required' }, { status: 400 });
+    }
+    
     const sessionId = request.headers.get('x-session-id') || '';
     
     // First, check if the todo item exists and belongs to the current session

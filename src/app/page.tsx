@@ -7,6 +7,7 @@ import { TodoListType, TodoItemType } from '@/types';
 import { Button, Alert, Spinner, ButtonGroup } from 'flowbite-react';
 import { HiArchive, HiInbox, HiPlus } from 'react-icons/hi';
 import { getSessionId } from '@/lib/session';
+import Image from 'next/image';
 
 export default function Home() {
   const [todoLists, setTodoLists] = useState<TodoListType[]>([]);
@@ -265,10 +266,12 @@ export default function Home() {
           ) : filteredTodoLists.length === 0 ? (
             <div className="text-center my-12 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
               <div className="flex flex-col items-center justify-center">
-                <img 
+                <Image 
                   src={showArchived ? "/empty-archive.svg" : "/empty-list.svg"} 
                   alt={showArchived ? "No archived lists" : "No active lists"} 
-                  className="w-64 h-64 mb-4 opacity-80"
+                  width={256}
+                  height={256}
+                  className="mb-4 opacity-80"
                   onError={(e) => {
                     // Fallback to a default SVG if the image fails to load
                     e.currentTarget.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTAwIDcwQzg0LjUgNzAgNzIgODIuNSA3MiA5OEM3MiAxMTMuNSA4NC41IDEyNiAxMDAgMTI2QzExNS41IDEyNiAxMjggMTEzLjUgMTI4IDk4QzEyOCA4Mi41IDExNS41IDcwIDEwMCA3MFpNMTAwIDExOEM4OS4xIDE1MCA3OS41IDExOCA3OS41IDk4Qzc5LjUgODYuNiA4OC42IDc3LjUgMTAwIDc3LjVDMTExLjQgNzcuNSAxMjAuNSA4Ni42IDEyMC41IDk4QzEyMC41IDEwOS40IDExMS40IDExOCAxMDAgMTE4WiIgZmlsbD0iIzZCNzI4MCIvPjxwYXRoIGQ9Ik0xMDAgODVDOTMuMSA4NSA4Ny41IDkwLjYgODcuNSA5Ny41Qzg3LjUgMTA0LjQgOTMuMSAxMTAgMTAwIDExMEMxMDYuOSAxMTAgMTEyLjUgMTA0LjQgMTEyLjUgOTcuNUMxMTIuNSA5MC42IDEwNi45IDg1IDEwMCA4NVoiIGZpbGw9IiM2QjcyODAiLz48cGF0aCBkPSJNMTQwIDUwSDYwQzU0LjUgNTAgNTAgNTQuNSA1MCA2MFYxNDBDNTAgMTQ1LjUgNTQuNSAxNTAgNjAgMTUwSDE0MEMxNDUuNSAxNTAgMTUwIDE0NS41IDE1MCAxNDBWNjBDMTUwIDU0LjUgMTQ1LjUgNTAgMTQwIDUwWk0xNDIuNSAxNDBDMTQyLjUgMTQxLjQgMTQxLjQgMTQyLjUgMTQwIDE0Mi41SDYwQzU4LjYgMTQyLjUgNTcuNSAxNDEuNCA1Ny41IDE0MFY2MEM1Ny41IDU4LjYgNTguNiA1Ny41IDYwIDU3LjVIMTQwQzE0MS40IDU3LjUgMTQyLjUgNTguNiAxNDIuNSA2MFYxNDBaIiBmaWxsPSIjNkI3MjgwIi8+PC9zdmc+"

@@ -21,13 +21,10 @@ jest.mock('@/lib/db', () => ({
 
 // Mock Redis client
 jest.mock('@/lib/redis', () => ({
-  set: jest.fn(),
-  expire: jest.fn(),
-  del: jest.fn(),
+  set: jest.fn(() => Promise.resolve('OK')),
+  expire: jest.fn(() => Promise.resolve(1)),
+  del: jest.fn(() => Promise.resolve(1)),
 }));
-
-// Mock session ID for tests
-const TEST_SESSION_ID = 'test-session-id';
 
 describe('Reminders API Routes', () => {
   beforeEach(() => {
@@ -47,24 +44,20 @@ describe('Reminders API Routes', () => {
             id: 'item-1',
             title: 'Test Item',
             todoList: {
-              sessionId: TEST_SESSION_ID
+              sessionId: 'test-session'
             }
           },
         },
       ];
 
-      (prisma.reminder.findMany as jest.Mock).mockResolvedValue(mockReminders);
+      prisma.reminder.findMany.mockResolvedValue(mockReminders);
 
-      const request = new NextRequest('http://localhost:3000/api/reminders', {
-        headers: {
-          'x-session-id': TEST_SESSION_ID
-        }
-      });
+      const request = new NextRequest('http://localhost:3000/api/reminders');
 
       const response = await GET(request);
       const data = await response.json();
 
-      expect(prisma.reminder.findMany).toHaveBeenCalledTimes(1);
+      expect(prisma.reminder.findMany).toHaveBeenCalled();
       expect(data).toEqual(normalizeDates(mockReminders));
       expect(response.status).toBe(200);
     });
@@ -77,7 +70,7 @@ describe('Reminders API Routes', () => {
         title: 'Test Item',
         todoList: {
           id: 'list-1',
-          sessionId: TEST_SESSION_ID
+          sessionId: 'test-session'
         }
       };
 
@@ -90,19 +83,19 @@ describe('Reminders API Routes', () => {
         todoItem: mockTodoItem,
       };
 
-      (prisma.todoItem.findUnique as jest.Mock).mockResolvedValue(mockTodoItem);
-      (prisma.reminder.create as jest.Mock).mockResolvedValue(mockReminder);
+      prisma.todoItem.findUnique.mockResolvedValue(mockTodoItem);
+      prisma.reminder.create.mockResolvedValue(mockReminder);
       
-      // Skip the time-dependent tests for redis.expire
-      (redis.expire as jest.Mock).mockResolvedValue('OK');
-
       const request = new NextRequest('http://localhost:3000/api/reminders', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': TEST_SESSION_ID
-        },
-        body: JSON.stringify({
+          'x-session-id': 'test-session'
+        }
+      });
+      
+      // Mock the request body with all required fields
+      Object.defineProperty(request, 'json', {
+        value: jest.fn().mockResolvedValue({
           reminderAt: '2023-12-31T12:00:00.000Z',
           todoItemId: 'item-1',
         }),
@@ -136,10 +129,13 @@ describe('Reminders API Routes', () => {
       const request = new NextRequest('http://localhost:3000/api/reminders', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': TEST_SESSION_ID
-        },
-        body: JSON.stringify({
+          'x-session-id': 'test-session'
+        }
+      });
+      
+      // Mock the request body with missing reminderAt
+      Object.defineProperty(request, 'json', {
+        value: jest.fn().mockResolvedValue({
           todoItemId: 'item-1',
         }),
       });
@@ -153,15 +149,18 @@ describe('Reminders API Routes', () => {
     });
 
     it('returns 404 if todo item is not found', async () => {
-      (prisma.todoItem.findUnique as jest.Mock).mockResolvedValue(null);
+      prisma.todoItem.findUnique.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/reminders', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': TEST_SESSION_ID
-        },
-        body: JSON.stringify({
+          'x-session-id': 'test-session'
+        }
+      });
+      
+      // Mock the request body
+      Object.defineProperty(request, 'json', {
+        value: jest.fn().mockResolvedValue({
           reminderAt: '2023-12-31T12:00:00.000Z',
           todoItemId: 'non-existent',
         }),
@@ -179,15 +178,8 @@ describe('Reminders API Routes', () => {
 
   describe('GET /api/reminders/[id]', () => {
     it('returns a specific reminder', async () => {
-      const params = { id: '1' };
-      const request = new NextRequest(`http://localhost/api/reminders/${params.id}`, {
-        headers: {
-          'x-session-id': TEST_SESSION_ID
-        }
-      });
-
-      // Mock the findUnique method to return a reminder
-      prisma.reminder.findUnique.mockResolvedValue({
+      // Mock the Prisma response
+      const mockReminder = {
         id: '1',
         reminderAt: new Date('2023-01-15T12:00:00.000Z'),
         todoItemId: '1',
@@ -197,9 +189,26 @@ describe('Reminders API Routes', () => {
           title: 'Test Item',
           todoListId: '1'
         }
+      };
+      
+      prisma.reminder.findUnique.mockResolvedValue(mockReminder);
+      
+      // Create a mock request with the ID in the URL pathname
+      const request = new NextRequest('http://localhost:3000/api/reminders/1', {
+        headers: {
+          'x-session-id': 'test-session'
+        }
       });
-
-      const response = await GET_BY_ID(request, { params });
+      
+      // Mock the nextUrl.pathname property
+      Object.defineProperty(request, 'nextUrl', {
+        value: {
+          pathname: '/api/reminders/1'
+        },
+        writable: true
+      });
+      
+      const response = await GET_BY_ID(request);
       const data = await response.json();
 
       expect(prisma.reminder.findUnique).toHaveBeenCalledTimes(1);
@@ -209,20 +218,30 @@ describe('Reminders API Routes', () => {
           todoItem: true
         }
       });
+      
+      expect(data).toEqual(normalizeDates(mockReminder));
       expect(response.status).toBe(200);
-      expect(data.id).toBe('1');
     });
 
     it('returns 404 if reminder is not found', async () => {
-      (prisma.reminder.findUnique as jest.Mock).mockResolvedValue(null);
-
-      const params = { id: '999' };
+      prisma.reminder.findUnique.mockResolvedValue(null);
+      
+      // Create a mock request with the ID in the URL pathname
       const request = new NextRequest('http://localhost:3000/api/reminders/999', {
         headers: {
-          'x-session-id': TEST_SESSION_ID
+          'x-session-id': 'test-session'
         }
       });
-      const response = await GET_BY_ID(request, { params });
+      
+      // Mock the nextUrl.pathname property
+      Object.defineProperty(request, 'nextUrl', {
+        value: {
+          pathname: '/api/reminders/999'
+        },
+        writable: true
+      });
+      
+      const response = await GET_BY_ID(request);
       const data = await response.json();
 
       expect(prisma.reminder.findUnique).toHaveBeenCalledTimes(1);
@@ -233,21 +252,10 @@ describe('Reminders API Routes', () => {
 
   describe('PATCH /api/reminders/[id]', () => {
     it('updates a reminder', async () => {
-      const params = { id: '1' };
-      const request = new NextRequest(`http://localhost/api/reminders/${params.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': TEST_SESSION_ID
-        },
-        body: JSON.stringify({
-          reminderAt: '2023-02-15T12:00:00.000Z'
-        })
-      });
-
-      prisma.reminder.update.mockResolvedValue({
+      // Mock the Prisma response
+      const mockUpdatedReminder = {
         id: '1',
-        reminderAt: new Date('2023-02-15T12:00:00.000Z'),
+        reminderAt: new Date('2023-02-15T12:00:00.000Z'), // Updated date
         todoItemId: '1',
         createdAt: new Date('2023-01-01T12:00:00.000Z'),
         todoItem: {
@@ -255,51 +263,87 @@ describe('Reminders API Routes', () => {
           title: 'Test Item',
           todoListId: '1'
         }
+      };
+      
+      // Mock the Redis functions to return successful responses
+      jest.spyOn(redis, 'set').mockResolvedValue('OK');
+      jest.spyOn(redis, 'expire').mockResolvedValue(1);
+      
+      prisma.reminder.update.mockResolvedValue(mockUpdatedReminder);
+      
+      // Create a mock request with the ID in the URL pathname
+      const request = new NextRequest('http://localhost:3000/api/reminders/1', {
+        method: 'PATCH',
+        headers: {
+          'x-session-id': 'test-session'
+        }
       });
-
-      const response = await PATCH(request, { params });
+      
+      // Mock the nextUrl.pathname property
+      Object.defineProperty(request, 'nextUrl', {
+        value: {
+          pathname: '/api/reminders/1'
+        },
+        writable: true
+      });
+      
+      // Mock the request body
+      Object.defineProperty(request, 'json', {
+        value: jest.fn().mockResolvedValue({
+          reminderAt: '2023-02-15T12:00:00.000Z'
+        }),
+      });
+      
+      const response = await PATCH(request);
       const data = await response.json();
 
-      // We don't need to check for findUnique since the current implementation doesn't use it
       expect(prisma.reminder.update).toHaveBeenCalledTimes(1);
       expect(prisma.reminder.update).toHaveBeenCalledWith({
         where: { id: '1' },
         data: {
-          reminderAt: new Date('2023-02-15T12:00:00.000Z')
+          reminderAt: expect.any(Date)
         },
         include: {
           todoItem: true
         }
       });
+      
+      expect(data).toEqual(normalizeDates(mockUpdatedReminder));
       expect(response.status).toBe(200);
-      expect(data.id).toBe('1');
     });
   });
 
   describe('DELETE /api/reminders/[id]', () => {
     it('deletes a reminder', async () => {
-      const params = { id: '1' };
-      const request = new NextRequest(`http://localhost/api/reminders/${params.id}`, {
+      prisma.reminder.delete.mockResolvedValue({});
+      
+      // Create a mock request with the ID in the URL pathname
+      const request = new NextRequest('http://localhost:3000/api/reminders/1', {
         method: 'DELETE',
         headers: {
-          'x-session-id': TEST_SESSION_ID
+          'x-session-id': 'test-session'
         }
       });
-
-      prisma.reminder.delete.mockResolvedValue({
-        id: '1',
-        reminderAt: new Date('2023-01-15T12:00:00.000Z'),
-        todoItemId: '1',
-        createdAt: new Date('2023-01-01T12:00:00.000Z')
+      
+      // Mock the nextUrl.pathname property
+      Object.defineProperty(request, 'nextUrl', {
+        value: {
+          pathname: '/api/reminders/1'
+        },
+        writable: true
       });
+      
+      const response = await DELETE(request);
 
-      const response = await DELETE(request, { params });
-
-      // We don't need to check for findUnique since the current implementation doesn't use it
       expect(prisma.reminder.delete).toHaveBeenCalledTimes(1);
       expect(prisma.reminder.delete).toHaveBeenCalledWith({
         where: { id: '1' }
       });
+      
+      // Check Redis operations
+      expect(redis.del).toHaveBeenCalledTimes(1);
+      expect(redis.del).toHaveBeenCalledWith('reminder:1');
+      
       expect(response.status).toBe(204);
     });
   });

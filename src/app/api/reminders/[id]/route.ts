@@ -3,14 +3,18 @@ import prisma from '@/lib/db';
 import redis from '@/lib/redis';
 
 // GET /api/reminders/[id] - Get a specific reminder
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
+    // Extract the id from the URL
+    const id = request.nextUrl.pathname.split('/').pop();
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Reminder ID is required' }, { status: 400 });
+    }
+    
     const reminder = await prisma.reminder.findUnique({
       where: {
-        id: params.id,
+        id,
       },
       include: {
         todoItem: true,
@@ -29,16 +33,20 @@ export async function GET(
 }
 
 // PATCH /api/reminders/[id] - Update a reminder
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest) {
   try {
+    // Extract the id from the URL
+    const id = request.nextUrl.pathname.split('/').pop();
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Reminder ID is required' }, { status: 400 });
+    }
+    
     const { reminderAt } = await request.json();
     
     const reminder = await prisma.reminder.update({
       where: {
-        id: params.id,
+        id,
       },
       data: {
         reminderAt: new Date(reminderAt),
@@ -69,19 +77,23 @@ export async function PATCH(
 }
 
 // DELETE /api/reminders/[id] - Delete a reminder
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest) {
   try {
+    // Extract the id from the URL
+    const id = request.nextUrl.pathname.split('/').pop();
+    
+    if (!id) {
+      return NextResponse.json({ error: 'Reminder ID is required' }, { status: 400 });
+    }
+    
     await prisma.reminder.delete({
       where: {
-        id: params.id,
+        id,
       },
     });
     
     // Remove from Redis
-    await redis.del(`reminder:${params.id}`);
+    await redis.del(`reminder:${id}`);
     
     return new NextResponse(null, { status: 204 });
   } catch (error) {

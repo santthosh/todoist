@@ -3,6 +3,7 @@ import { GET, POST } from '@/app/api/todo-lists/route';
 import { GET as GET_BY_ID, PATCH, DELETE } from '@/app/api/todo-lists/[id]/route';
 import prisma from '@/lib/db';
 import { normalizeDates } from '../utils/testHelpers';
+import { createMockRequestWithParams } from '../utils/apiHelpers';
 
 // Mock Prisma client
 jest.mock('@/lib/db', () => ({
@@ -145,26 +146,28 @@ describe('Todo Lists API Routes', () => {
 
   describe('GET /api/todo-lists/[id]', () => {
     it('returns a specific todo list', async () => {
+      // Mock the Prisma response
       const mockTodoList = {
         id: '1',
-        title: 'Test List',
-        description: 'Test Description',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        title: 'Test Todo List',
+        description: 'Test description',
         isArchived: false,
         sessionId: TEST_SESSION_ID,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         items: [],
       };
-
+      
       (prisma.todoList.findUnique as jest.Mock).mockResolvedValue(mockTodoList);
-
-      const params = { id: '1' };
-      const request = new NextRequest('http://localhost:3000/api/todo-lists/1', {
-        headers: {
-          'x-session-id': TEST_SESSION_ID
-        }
-      });
-      const response = await GET_BY_ID(request, { params });
+      
+      // Create a mock request with the ID in the URL
+      const request = createMockRequestWithParams(
+        'http://localhost:3000/api/todo-lists/1',
+        { id: '1' },
+        { 'x-session-id': TEST_SESSION_ID }
+      );
+      
+      const response = await GET_BY_ID(request);
       const data = await response.json();
 
       expect(prisma.todoList.findUnique).toHaveBeenCalledTimes(1);
@@ -181,20 +184,22 @@ describe('Todo Lists API Routes', () => {
           }
         },
       });
+      
       expect(data).toEqual(normalizeDates(mockTodoList));
       expect(response.status).toBe(200);
     });
 
     it('returns 404 if todo list is not found', async () => {
       (prisma.todoList.findUnique as jest.Mock).mockResolvedValue(null);
-
-      const params = { id: '999' };
-      const request = new NextRequest('http://localhost:3000/api/todo-lists/999', {
-        headers: {
-          'x-session-id': TEST_SESSION_ID
-        }
-      });
-      const response = await GET_BY_ID(request, { params });
+      
+      // Create a mock request with the ID in the URL
+      const request = createMockRequestWithParams(
+        'http://localhost:3000/api/todo-lists/999',
+        { id: '999' },
+        { 'x-session-id': TEST_SESSION_ID }
+      );
+      
+      const response = await GET_BY_ID(request);
       const data = await response.json();
 
       expect(prisma.todoList.findUnique).toHaveBeenCalledTimes(1);
@@ -205,42 +210,42 @@ describe('Todo Lists API Routes', () => {
 
   describe('PATCH /api/todo-lists/[id]', () => {
     it('updates a todo list', async () => {
-      const mockExistingTodoList = {
+      // Mock the Prisma responses
+      const mockExistingList = {
         id: '1',
-        title: 'Test List',
-        description: 'Test Description',
+        title: 'Test Todo List',
+        description: 'Test description',
         isArchived: false,
         sessionId: TEST_SESSION_ID,
-      };
-
-      const mockUpdatedTodoList = {
-        id: '1',
-        title: 'Updated List',
-        description: 'Updated Description',
-        isArchived: true,
         createdAt: new Date(),
         updatedAt: new Date(),
-        sessionId: TEST_SESSION_ID,
       };
-
-      (prisma.todoList.findUnique as jest.Mock).mockResolvedValue(mockExistingTodoList);
-      (prisma.todoList.update as jest.Mock).mockResolvedValue(mockUpdatedTodoList);
-
-      const params = { id: '1' };
-      const request = new NextRequest('http://localhost:3000/api/todo-lists/1', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': TEST_SESSION_ID
-        },
-        body: JSON.stringify({
-          title: 'Updated List',
-          description: 'Updated Description',
+      
+      const mockUpdatedList = {
+        ...mockExistingList,
+        title: 'Updated Title',
+        isArchived: true,
+      };
+      
+      (prisma.todoList.findUnique as jest.Mock).mockResolvedValue(mockExistingList);
+      (prisma.todoList.update as jest.Mock).mockResolvedValue(mockUpdatedList);
+      
+      // Create a mock request with the ID in the URL
+      const request = createMockRequestWithParams(
+        'http://localhost:3000/api/todo-lists/1',
+        { id: '1' },
+        { 'x-session-id': TEST_SESSION_ID }
+      );
+      
+      // Mock the request body
+      Object.defineProperty(request, 'json', {
+        value: jest.fn().mockResolvedValue({
+          title: 'Updated Title',
           isArchived: true,
         }),
       });
-
-      const response = await PATCH(request, { params });
+      
+      const response = await PATCH(request);
       const data = await response.json();
 
       expect(prisma.todoList.findUnique).toHaveBeenCalledTimes(1);
@@ -248,44 +253,46 @@ describe('Todo Lists API Routes', () => {
       expect(prisma.todoList.update).toHaveBeenCalledWith({
         where: { id: '1' },
         data: {
-          title: 'Updated List',
-          description: 'Updated Description',
+          title: 'Updated Title',
           isArchived: true,
         },
       });
-      expect(data).toEqual(normalizeDates(mockUpdatedTodoList));
+      
+      expect(data).toEqual(normalizeDates(mockUpdatedList));
       expect(response.status).toBe(200);
     });
   });
 
   describe('DELETE /api/todo-lists/[id]', () => {
     it('deletes a todo list', async () => {
-      const mockExistingTodoList = {
+      // Mock the Prisma response
+      const mockExistingList = {
         id: '1',
-        title: 'Test List',
-        description: 'Test Description',
+        title: 'Test Todo List',
+        description: 'Test description',
         isArchived: false,
         sessionId: TEST_SESSION_ID,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
-
-      (prisma.todoList.findUnique as jest.Mock).mockResolvedValue(mockExistingTodoList);
-      (prisma.todoList.delete as jest.Mock).mockResolvedValue({});
-
-      const params = { id: '1' };
-      const request = new NextRequest('http://localhost:3000/api/todo-lists/1', {
-        method: 'DELETE',
-        headers: {
-          'x-session-id': TEST_SESSION_ID
-        }
-      });
-
-      const response = await DELETE(request, { params });
+      
+      (prisma.todoList.findUnique as jest.Mock).mockResolvedValue(mockExistingList);
+      
+      // Create a mock request with the ID in the URL
+      const request = createMockRequestWithParams(
+        'http://localhost:3000/api/todo-lists/1',
+        { id: '1' },
+        { 'x-session-id': TEST_SESSION_ID }
+      );
+      
+      const response = await DELETE(request);
 
       expect(prisma.todoList.findUnique).toHaveBeenCalledTimes(1);
       expect(prisma.todoList.delete).toHaveBeenCalledTimes(1);
       expect(prisma.todoList.delete).toHaveBeenCalledWith({
         where: { id: '1' },
       });
+      
       expect(response.status).toBe(204);
     });
   });
