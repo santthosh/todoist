@@ -7,11 +7,5 @@
   "outputDirectory": ".next",
   "github": {
     "enabled": false
-  },
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/node"
-    }
-  ]
+  }
 } 
