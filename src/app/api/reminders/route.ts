@@ -72,8 +72,10 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/reminders - Get all reminders
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // In a real application, you would filter reminders by session ID
+    // by joining with todoItem and todoList
     const reminders = await prisma.reminder.findMany({
       include: {
         todoItem: true,

@@ -58,11 +58,11 @@ describe('TodoList Component', () => {
     expect(screen.getByText('Test List')).toBeInTheDocument();
     expect(screen.getByText('Test List Description')).toBeInTheDocument();
     expect(screen.getByText('Test Item 1')).toBeInTheDocument();
-    expect(screen.getByText('Archive')).toBeInTheDocument();
+    expect(screen.getByTitle('Archive')).toBeInTheDocument();
     
     // Find the header section and look for the Delete button within it
     const header = screen.getByText('Test List').closest('div');
-    expect(within(header).getByText('Delete')).toBeInTheDocument();
+    expect(within(header).getByTitle('Delete')).toBeInTheDocument();
     
     expect(screen.getByText('Add Item')).toBeInTheDocument();
   });
@@ -80,7 +80,7 @@ describe('TodoList Component', () => {
       />
     );
     
-    fireEvent.click(screen.getByText('Archive'));
+    fireEvent.click(screen.getByTitle('Archive'));
     
     expect(mockOnArchive).toHaveBeenCalledTimes(1);
     expect(mockOnArchive).toHaveBeenCalledWith('list-1');
@@ -99,9 +99,14 @@ describe('TodoList Component', () => {
       />
     );
     
-    // Find the header section and click the Delete button within it
-    const header = screen.getByText('Test List').closest('div');
-    fireEvent.click(within(header).getByText('Delete'));
+    // Find all delete buttons and click the first one (the one in the header)
+    const deleteButtons = screen.getAllByTitle('Delete');
+    fireEvent.click(deleteButtons[0]); // The first one is in the header
+    
+    // Since the list has one item, it should show a confirmation modal
+    // We need to find and click the confirm button in the modal
+    const confirmButton = screen.getByRole('button', { name: /delete/i });
+    fireEvent.click(confirmButton);
     
     expect(mockOnDelete).toHaveBeenCalledTimes(1);
     expect(mockOnDelete).toHaveBeenCalledWith('list-1');
@@ -179,6 +184,6 @@ describe('TodoList Component', () => {
       />
     );
     
-    expect(screen.getByText('Unarchive')).toBeInTheDocument();
+    expect(screen.getByTitle('Unarchive')).toBeInTheDocument();
   });
 }); 
