@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Todo App - Manage Your Tasks and Reminders",
-  description: "A modern todo application for managing tasks, creating todo lists, setting reminders, and staying organized.",
+  title: "Todoist - Manage Your Tasks and Reminders",
+  description: "A modern task management application for managing tasks, creating lists, setting reminders, and staying organized.",
 };
 
 export default function RootLayout({

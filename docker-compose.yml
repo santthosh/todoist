@@ -3,12 +3,12 @@ version: '3.8'
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: todo-app-postgres
+    container_name: todoist-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: todoist
       POSTGRES_PASSWORD: aIU0Ys5hrBPho647FLBpzl+Q37IM5mQhTgUhTqt25mE=
-      POSTGRES_DB: mydb
+      POSTGRES_DB: todoist
     ports:
       - "5432:5432"
     volumes:
@@ -21,7 +21,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: todo-app-redis
+    container_name: todoist-redis
     restart: unless-stopped
     ports:
       - "6379:6379"

@@ -1,16 +1,16 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Todo Application Features
+## Todoist Features
 
-This application is a full-featured TODO application that allows you to:
+This application is a full-featured task management application that allows you to:
 
-- Create multiple todo lists to organize your tasks
-- Add todo items to your lists
-- Mark todo items as complete
+- Create multiple task lists to organize your activities
+- Add items to your lists
+- Mark items as complete
 - Set due dates for your tasks
 - Schedule reminders for important tasks
-- Archive todo lists you no longer need
-- Delete todo lists and items
+- Archive lists you no longer need
+- Delete lists and items
 
 The application uses PostgreSQL for data storage and Redis for caching reminders.
 
@@ -52,13 +52,13 @@ docker-compose up -d
 ```
 
 2. The services will be available at:
-   - PostgreSQL: `localhost:5432` (User: todoist, Password: randompassword, Database: mydb)
+   - PostgreSQL: `localhost:5432` (User: todoist, Password: aIU0Ys5hrBPho647FLBpzl+Q37IM5mQhTgUhTqt25mE=, Database: todoist)
    - Redis: `localhost:6379`
 
 3. Update your `.env` file to connect to these services:
 
 ```
-DATABASE_URL="postgresql://todoist:randompassword@localhost:5432/mydb?schema=public"
+DATABASE_URL="postgresql://todoist:aIU0Ys5hrBPho647FLBpzl+Q37IM5mQhTgUhTqt25mE=@localhost:5432/todoist?schema=public"
 REDIS_URL="redis://localhost:6379"
 ```
 

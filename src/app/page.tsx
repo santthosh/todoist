@@ -191,7 +191,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <div className="container mx-auto py-8 px-4 max-w-4xl">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Todo App</h1>
+          <h1 className="text-3xl font-bold mb-2">Todoist</h1>
           <p className="text-gray-600 dark:text-gray-400">Manage your tasks and reminders</p>
         </header>
 
