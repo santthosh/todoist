@@ -1,0 +1,24 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="none"/>
+  
+  <!-- Clipboard -->
+  <rect x="128" y="64" width="256" height="384" rx="16" fill="#E5E7EB"/>
+  <rect x="128" y="64" width="256" height="384" rx="16" stroke="#6B7280" stroke-width="8"/>
+  
+  <!-- Clipboard top -->
+  <rect x="176" y="32" width="160" height="64" rx="16" fill="#E5E7EB" stroke="#6B7280" stroke-width="8"/>
+  
+  <!-- Lines -->
+  <rect x="160" y="160" width="192" height="8" rx="4" fill="#9CA3AF"/>
+  <rect x="160" y="200" width="192" height="8" rx="4" fill="#9CA3AF"/>
+  <rect x="160" y="240" width="192" height="8" rx="4" fill="#9CA3AF"/>
+  <rect x="160" y="280" width="192" height="8" rx="4" fill="#9CA3AF"/>
+  <rect x="160" y="320" width="192" height="8" rx="4" fill="#9CA3AF"/>
+  <rect x="160" y="360" width="120" height="8" rx="4" fill="#9CA3AF"/>
+  
+  <!-- Plus sign -->
+  <circle cx="384" cy="384" r="48" fill="#3B82F6" stroke="#2563EB" stroke-width="4"/>
+  <path d="M384 352V416" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <path d="M352 384H416" stroke="white" stroke-width="8" stroke-linecap="round"/>
+</svg> 

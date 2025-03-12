@@ -47,48 +47,45 @@ export function CreateTodoList({ onCreateList }: CreateTodoListProps) {
   };
 
   return (
-    <Card className="mb-6">
-      {isCreating ? (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-xl font-bold mb-4">Create new todo list</h2>
-          <div>
-            <Label htmlFor="title" value="Title" />
-            <TextInput
-              id="title"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="description" value="Description (optional)" />
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-            />
-          </div>
-          <div className="flex space-x-2">
-            <Button type="submit" color="blue">
-              Create List
-            </Button>
-            <Button color="gray" onClick={() => setIsCreating(false)}>
-              Cancel
-            </Button>
-          </div>
-        </form>
-      ) : (
-        <Button
-          color="blue"
-          onClick={handleStartCreating}
-          className="w-full flex items-center justify-center"
-        >
-          <HiPlus className="h-5 w-5 mr-2" />
-          Create new todo list
-        </Button>
-      )}
+    <Card className={`mb-6 ${isCreating ? '' : 'hidden'}`}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 className="text-xl font-bold mb-4">Create new todo list</h2>
+        <div>
+          <Label htmlFor="title" value="Title" />
+          <TextInput
+            id="title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="description" value="Description (optional)" />
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+          />
+        </div>
+        <div className="flex space-x-2">
+          <Button type="submit" color="blue">
+            Create List
+          </Button>
+          <Button color="gray" onClick={() => setIsCreating(false)}>
+            Cancel
+          </Button>
+        </div>
+      </form>
+      <Button
+        id="createListBtn"
+        color="blue"
+        onClick={handleStartCreating}
+        className="hidden"
+      >
+        Create new todo list
+      </Button>
     </Card>
   );
 } 

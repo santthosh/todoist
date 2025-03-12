@@ -5,7 +5,7 @@ import { TodoList } from './components/TodoList';
 import { CreateTodoList } from './components/CreateTodoList';
 import { TodoListType, TodoItemType } from '@/types';
 import { Button, Alert, Spinner, Badge, ButtonGroup } from 'flowbite-react';
-import { HiArchive, HiInbox } from 'react-icons/hi';
+import { HiArchive, HiInbox, HiPlus } from 'react-icons/hi';
 
 export default function Home() {
   const [todoLists, setTodoLists] = useState<TodoListType[]>([]);
@@ -197,7 +197,16 @@ export default function Home() {
           </Alert>
         )}
 
-        <div className="mb-6 flex justify-end">
+        <div className="mb-6 flex justify-between items-center">
+          <Button
+            color="blue"
+            onClick={() => document.getElementById('createListBtn')?.click()}
+            className="flex items-center"
+          >
+            <HiPlus className="h-4 w-4 mr-2" />
+            New List
+          </Button>
+          
           <ButtonGroup>
             <Button
               color={!showArchived ? "blue" : "gray"}
@@ -223,10 +232,26 @@ export default function Home() {
             <Spinner size="xl" />
           </div>
         ) : filteredTodoLists.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            {showArchived
-              ? 'No archived todo lists found.'
-              : 'No active todo lists found. Create one to get started!'}
+          <div className="text-center py-8">
+            <div className="flex flex-col items-center justify-center">
+              <img 
+                src={showArchived ? "/empty-archive.svg" : "/empty-list.svg"} 
+                alt={showArchived ? "No archived lists" : "No active lists"} 
+                className="w-64 h-64 mb-4 opacity-80"
+                onError={(e) => {
+                  // Fallback to a default SVG if the image fails to load
+                  e.currentTarget.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTAwIDcwQzg0LjUgNzAgNzIgODIuNSA3MiA5OEM3MiAxMTMuNSA4NC41IDEyNiAxMDAgMTI2QzExNS41IDEyNiAxMjggMTEzLjUgMTI4IDk4QzEyOCA4Mi41IDExNS41IDcwIDEwMCA3MFpNMTAwIDExOEM4OS4xIDE1MCA3OS41IDExOCA3OS41IDk4Qzc5LjUgODYuNiA4OC42IDc3LjUgMTAwIDc3LjVDMTExLjQgNzcuNSAxMjAuNSA4Ni42IDEyMC41IDk4QzEyMC41IDEwOS40IDExMS40IDExOCAxMDAgMTE4WiIgZmlsbD0iIzZCNzI4MCIvPjxwYXRoIGQ9Ik0xMDAgODVDOTMuMSA4NSA4Ny41IDkwLjYgODcuNSA5Ny41Qzg3LjUgMTA0LjQgOTMuMSAxMTAgMTAwIDExMEMxMDYuOSAxMTAgMTEyLjUgMTA0LjQgMTEyLjUgOTcuNUMxMTIuNSA5MC42IDEwNi45IDg1IDEwMCA4NVoiIGZpbGw9IiM2QjcyODAiLz48cGF0aCBkPSJNMTQwIDUwSDYwQzU0LjUgNTAgNTAgNTQuNSA1MCA2MFYxNDBDNTAgMTQ1LjUgNTQuNSAxNTAgNjAgMTUwSDE0MEMxNDUuNSAxNTAgMTUwIDE0NS41IDE1MCAxNDBWNjBDMTUwIDU0LjUgMTQ1LjUgNTAgMTQwIDUwWk0xNDIuNSAxNDBDMTQyLjUgMTQxLjQgMTQxLjQgMTQyLjUgMTQwIDE0Mi41SDYwQzU4LjYgMTQyLjUgNTcuNSAxNDEuNCA1Ny41IDE0MFY2MEM1Ny41IDU4LjYgNTguNiA1Ny41IDYwIDU3LjVIMTQwQzE0MS40IDU3LjUgMTQyLjUgNTguNiAxNDIuNSA2MFYxNDBaIiBmaWxsPSIjNkI3MjgwIi8+PC9zdmc+"
+                }}
+              />
+              <p className="text-xl font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {showArchived ? 'No archived todo lists found' : 'No todo lists yet'}
+              </p>
+              <p className="text-gray-500 dark:text-gray-400">
+                {showArchived 
+                  ? 'You haven\'t archived any lists yet.' 
+                  : 'Click the "New List" button to create your first todo list.'}
+              </p>
+            </div>
           </div>
         ) : (
           filteredTodoLists.map(todoList => (
