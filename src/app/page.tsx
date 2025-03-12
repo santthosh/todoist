@@ -190,14 +190,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <div className="container mx-auto py-8 px-4 max-w-4xl">
+      <div className="container-fluid mx-auto py-8 px-6">
         {error && (
-          <Alert color="failure" className="mb-6">
+          <Alert color="failure" className="mb-6 max-w-7xl mx-auto">
             {error}
           </Alert>
         )}
 
-        <div className="mb-6 flex justify-between items-center">
+        <div className="mb-6 flex justify-between items-center max-w-7xl mx-auto">
           <Button
             color="blue"
             onClick={() => document.getElementById('createListBtn')?.click()}
@@ -206,7 +206,7 @@ export default function Home() {
             <HiPlus className="h-4 w-4 mr-2" />
             New List
           </Button>
-          
+           
           <ButtonGroup>
             <Button
               color={!showArchived ? "blue" : "gray"}
@@ -225,14 +225,16 @@ export default function Home() {
           </ButtonGroup>
         </div>
 
-        <CreateTodoList onCreateList={handleCreateList} />
+        <div className="max-w-7xl mx-auto">
+          <CreateTodoList onCreateList={handleCreateList} />
+        </div>
 
         {loading ? (
-          <div className="text-center py-8">
+          <div className="text-center py-8 max-w-7xl mx-auto">
             <Spinner size="xl" />
           </div>
         ) : filteredTodoLists.length === 0 ? (
-          <div className="text-center py-8">
+          <div className="text-center py-8 max-w-7xl mx-auto">
             <div className="flex flex-col items-center justify-center">
               <img 
                 src={showArchived ? "/empty-archive.svg" : "/empty-list.svg"} 
@@ -254,18 +256,20 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          filteredTodoLists.map(todoList => (
-            <TodoList
-              key={todoList.id}
-              todoList={todoList}
-              onArchive={handleArchiveList}
-              onDelete={handleDeleteList}
-              onAddItem={handleAddItem}
-              onUpdateItem={handleUpdateItem}
-              onDeleteItem={handleDeleteItem}
-              onAddReminder={handleAddReminder}
-            />
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto">
+            {filteredTodoLists.map(todoList => (
+              <TodoList
+                key={todoList.id}
+                todoList={todoList}
+                onArchive={handleArchiveList}
+                onDelete={handleDeleteList}
+                onAddItem={handleAddItem}
+                onUpdateItem={handleUpdateItem}
+                onDeleteItem={handleDeleteItem}
+                onAddReminder={handleAddReminder}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>
