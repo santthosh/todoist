@@ -209,3 +209,32 @@ The deployment configuration is defined in the following files:
 - `vercel.json`: Configuration for Vercel deployment
 
 You can choose which workflow to use based on your preferences. The `ci-cd.yml` workflow provides more control over the deployment process, while the `vercel-deploy.yml` workflow is simpler and uses the official Vercel GitHub Action.
+
+## Deployment
+
+### Prisma Setup for Deployment
+
+The application is configured to work with Prisma in both development and production environments. The following configurations have been made:
+
+1. **Binary Targets**: The Prisma schema includes binary targets for both local development (`native`) and RHEL-based production environments (`rhel-openssl-3.0.x`).
+
+2. **Build Process**: The build process includes Prisma client generation and database migrations:
+   ```
+   prisma generate && prisma migrate deploy && next build
+   ```
+
+3. **CI/CD Pipeline**: The GitHub Actions workflow is configured to:
+   - Generate the Prisma client during testing
+   - Run database migrations during deployment
+   - Pass the necessary environment variables to the build process
+
+4. **Environment Variables**: Make sure to set the following environment variables in your Vercel project:
+   - `DATABASE_URL`: The connection string for your PostgreSQL database
+   - `REDIS_URL`: The connection string for your Redis instance
+
+5. **GitHub Secrets**: The following secrets should be set in your GitHub repository:
+   - `VERCEL_TOKEN`: Your Vercel API token
+   - `VERCEL_ORG_ID`: Your Vercel organization ID
+   - `VERCEL_PROJECT_ID`: Your Vercel project ID
+   - `DATABASE_URL`: The connection string for your PostgreSQL database
+   - `REDIS_URL`: The connection string for your Redis instance
