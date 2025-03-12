@@ -50,7 +50,7 @@ export function CreateTodoList({ onCreateList }: CreateTodoListProps) {
     <Card className="mb-6">
       {isCreating ? (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-xl font-bold mb-4">Create New Todo List</h2>
+          <h2 className="text-xl font-bold mb-4">Create new todo list</h2>
           <div>
             <Label htmlFor="title" value="Title" />
             <TextInput
@@ -83,10 +83,10 @@ export function CreateTodoList({ onCreateList }: CreateTodoListProps) {
         <Button
           color="blue"
           onClick={handleStartCreating}
-          className="w-full"
+          className="w-full flex items-center justify-center"
         >
-          <HiPlus className="mr-1" />
-          Create New Todo List
+          <HiPlus className="h-5 w-5 mr-2" />
+          Create new todo list
         </Button>
       )}
     </Card>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { TodoList } from './components/TodoList';
 import { CreateTodoList } from './components/CreateTodoList';
 import { TodoListType, TodoItemType } from '@/types';
-import { Button, Alert, Spinner, Badge, DarkThemeToggle } from 'flowbite-react';
+import { Button, Alert, Spinner, Badge } from 'flowbite-react';
 import { HiArchive, HiInbox } from 'react-icons/hi';
 
 export default function Home() {
@@ -191,14 +191,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <div className="container mx-auto py-8 px-4 max-w-4xl">
-        <header className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Todoist</h1>
-            <p className="text-gray-600 dark:text-gray-400">Manage your tasks and reminders</p>
-          </div>
-          <DarkThemeToggle />
-        </header>
-
         {error && (
           <Alert color="failure" className="mb-6">
             {error}
@@ -209,15 +201,16 @@ export default function Home() {
           <Button
             color={showArchived ? "light" : "gray"}
             onClick={() => setShowArchived(!showArchived)}
+            className="flex items-center"
           >
             {showArchived ? (
               <>
-                <HiInbox className="mr-2" />
+                <HiInbox className="h-5 w-5 mr-2" />
                 Show Active Lists
               </>
             ) : (
               <>
-                <HiArchive className="mr-2" />
+                <HiArchive className="h-5 w-5 mr-2" />
                 Show Archived Lists
               </>
             )}

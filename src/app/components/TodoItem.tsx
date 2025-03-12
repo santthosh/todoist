@@ -129,7 +129,7 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
                 {item.reminders && item.reminders.length > 0 && (
                   <div className="mt-2">
                     <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center">
-                      <HiClock className="mr-1" />
+                      <HiClock className="h-4 w-4 mr-1" />
                       Reminder{item.reminders.length > 1 ? 's' : ''}:
                     </p>
                     <ul className="text-xs text-gray-500 dark:text-gray-400 ml-4 list-disc">
@@ -142,12 +142,12 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
               </div>
             </div>
             <div className="flex space-x-2">
-              <Button size="xs" color="blue" pill onClick={() => setIsEditing(true)}>
-                <HiPencil className="mr-1" />
+              <Button size="xs" color="blue" pill onClick={() => setIsEditing(true)} className="flex items-center">
+                <HiPencil className="h-4 w-4 mr-1" />
                 Edit
               </Button>
-              <Button size="xs" color="red" pill onClick={() => onDelete(item.id)}>
-                <HiTrash className="mr-1" />
+              <Button size="xs" color="red" pill onClick={() => onDelete(item.id)} className="flex items-center">
+                <HiTrash className="h-4 w-4 mr-1" />
                 Delete
               </Button>
             </div>
@@ -162,10 +162,10 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
                   size="xs"
                   color="green"
                   pill
-                  className="mt-2"
+                  className="mt-2 flex items-center"
                   onClick={() => setIsAddingReminder(true)}
                 >
-                  <HiPlus className="mr-1" />
+                  <HiPlus className="h-4 w-4 mr-1" />
                   Add Reminder
                 </Button>
               ) : null;

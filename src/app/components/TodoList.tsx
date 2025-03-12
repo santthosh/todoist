@@ -74,16 +74,18 @@ export function TodoList({
             color={todoList.isArchived ? "warning" : "yellow"}
             size="sm"
             onClick={() => onArchive(todoList.id)}
+            className="flex items-center"
           >
-            <HiArchive className="mr-1" />
+            <HiArchive className="h-5 w-5 mr-2" />
             {todoList.isArchived ? 'Unarchive' : 'Archive'}
           </Button>
           <Button
             color="red"
             size="sm"
             onClick={() => onDelete(todoList.id)}
+            className="flex items-center"
           >
-            <HiTrash className="mr-1" />
+            <HiTrash className="h-5 w-5 mr-2" />
             Delete
           </Button>
         </div>
@@ -150,9 +152,9 @@ export function TodoList({
         <Button
           color="gray"
           onClick={handleStartAddingItem}
-          className="w-full"
+          className="w-full flex items-center justify-center"
         >
-          <HiPlus className="mr-1" />
+          <HiPlus className="h-5 w-5 mr-2" />
           Add Item
         </Button>
       )}
