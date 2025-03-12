@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { TodoList } from './components/TodoList';
 import { CreateTodoList } from './components/CreateTodoList';
 import { TodoListType, TodoItemType } from '@/types';
-import { Button, Alert, Spinner, Badge } from 'flowbite-react';
+import { Button, Alert, Spinner, Badge, ButtonGroup } from 'flowbite-react';
 import { HiArchive, HiInbox } from 'react-icons/hi';
 
 export default function Home() {
@@ -197,27 +197,23 @@ export default function Home() {
           </Alert>
         )}
 
-        <div className="mb-6 flex justify-between items-center">
-          <Button
-            color={showArchived ? "light" : "gray"}
-            onClick={() => setShowArchived(!showArchived)}
-            className="flex items-center"
-          >
-            {showArchived ? (
-              <>
-                <HiInbox className="h-5 w-5 mr-2" />
-                Show Active Lists
-              </>
-            ) : (
-              <>
-                <HiArchive className="h-5 w-5 mr-2" />
-                Show Archived Lists
-              </>
-            )}
-          </Button>
-          <Badge color={showArchived ? "yellow" : "blue"}>
-            {showArchived ? 'Viewing archived lists' : 'Viewing active lists'}
-          </Badge>
+        <div className="mb-6 flex justify-end">
+          <ButtonGroup>
+            <Button
+              color={!showArchived ? "blue" : "gray"}
+              onClick={() => setShowArchived(false)}
+            >
+              <HiInbox className="h-4 w-4 mr-2" />
+              Active
+            </Button>
+            <Button
+              color={showArchived ? "blue" : "gray"}
+              onClick={() => setShowArchived(true)}
+            >
+              <HiArchive className="h-4 w-4 mr-2" />
+              Archived
+            </Button>
+          </ButtonGroup>
         </div>
 
         <CreateTodoList onCreateList={handleCreateList} />
