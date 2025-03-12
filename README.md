@@ -106,6 +106,17 @@ npm run test:watch
 - `src/__tests__/api/` - Tests for API routes
 - `src/__tests__/utils/` - Tests for utility functions
 
+### Continuous Integration
+
+This project uses GitHub Actions for continuous integration. Tests are automatically run when:
+
+- Code is pushed to the `main` branch
+- A pull request is created targeting the `main` branch
+
+The workflow sets up a test environment with Node.js, PostgreSQL, and Redis to ensure all tests pass in an environment similar to production.
+
+To see the status of the latest test runs, check the "Actions" tab in the GitHub repository.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
