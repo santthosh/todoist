@@ -6,18 +6,31 @@ import { CreateTodoList } from './components/CreateTodoList';
 import { TodoListType, TodoItemType } from '@/types';
 import { Button, Alert, Spinner, Badge, ButtonGroup } from 'flowbite-react';
 import { HiArchive, HiInbox, HiPlus } from 'react-icons/hi';
+import { getSessionId } from '@/lib/session';
 
 export default function Home() {
   const [todoLists, setTodoLists] = useState<TodoListType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [sessionId, setSessionId] = useState<string>('');
+
+  // Initialize session ID
+  useEffect(() => {
+    setSessionId(getSessionId());
+  }, []);
 
   // Fetch todo lists
   const fetchTodoLists = async () => {
+    if (!sessionId) return; // Don't fetch if session ID is not available yet
+    
     try {
       setLoading(true);
-      const response = await fetch('/api/todo-lists');
+      const response = await fetch('/api/todo-lists', {
+        headers: {
+          'x-session-id': sessionId
+        }
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch todo lists');
       }
@@ -33,8 +46,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchTodoLists();
-  }, []);
+    if (sessionId) {
+      fetchTodoLists();
+    }
+  }, [sessionId]);
 
   // Create a new todo list
   const handleCreateList = async (title: string, description?: string) => {
@@ -43,6 +58,7 @@ export default function Home() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-session-id': sessionId
         },
         body: JSON.stringify({ title, description }),
       });
@@ -68,6 +84,7 @@ export default function Home() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'x-session-id': sessionId
         },
         body: JSON.stringify({ isArchived: !todoList.isArchived }),
       });
@@ -88,6 +105,9 @@ export default function Home() {
     try {
       const response = await fetch(`/api/todo-lists/${id}`, {
         method: 'DELETE',
+        headers: {
+          'x-session-id': sessionId
+        }
       });
 
       if (!response.ok) {
@@ -108,6 +128,7 @@ export default function Home() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-session-id': sessionId
         },
         body: JSON.stringify({ title, description, dueDate, todoListId }),
       });
@@ -130,6 +151,7 @@ export default function Home() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          'x-session-id': sessionId
         },
         body: JSON.stringify(data),
       });
@@ -150,6 +172,9 @@ export default function Home() {
     try {
       const response = await fetch(`/api/todo-items/${id}`, {
         method: 'DELETE',
+        headers: {
+          'x-session-id': sessionId
+        }
       });
 
       if (!response.ok) {
@@ -170,6 +195,7 @@ export default function Home() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-session-id': sessionId
         },
         body: JSON.stringify({ todoItemId, reminderAt }),
       });
@@ -227,50 +253,50 @@ export default function Home() {
 
         <div className="max-w-7xl mx-auto">
           <CreateTodoList onCreateList={handleCreateList} />
-        </div>
-
-        {loading ? (
-          <div className="text-center py-8 max-w-7xl mx-auto">
-            <Spinner size="xl" />
-          </div>
-        ) : filteredTodoLists.length === 0 ? (
-          <div className="text-center py-8 max-w-7xl mx-auto">
-            <div className="flex flex-col items-center justify-center">
-              <img 
-                src={showArchived ? "/empty-archive.svg" : "/empty-list.svg"} 
-                alt={showArchived ? "No archived lists" : "No active lists"} 
-                className="w-64 h-64 mb-4 opacity-80"
-                onError={(e) => {
-                  // Fallback to a default SVG if the image fails to load
-                  e.currentTarget.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTAwIDcwQzg0LjUgNzAgNzIgODIuNSA3MiA5OEM3MiAxMTMuNSA4NC41IDEyNiAxMDAgMTI2QzExNS41IDEyNiAxMjggMTEzLjUgMTI4IDk4QzEyOCA4Mi41IDExNS41IDcwIDEwMCA3MFpNMTAwIDExOEM4OS4xIDE1MCA3OS41IDExOCA3OS41IDk4Qzc5LjUgODYuNiA4OC42IDc3LjUgMTAwIDc3LjVDMTExLjQgNzcuNSAxMjAuNSA4Ni42IDEyMC41IDk4QzEyMC41IDEwOS40IDExMS40IDExOCAxMDAgMTE4WiIgZmlsbD0iIzZCNzI4MCIvPjxwYXRoIGQ9Ik0xMDAgODVDOTMuMSA4NSA4Ny41IDkwLjYgODcuNSA5Ny41Qzg3LjUgMTA0LjQgOTMuMSAxMTAgMTAwIDExMEMxMDYuOSAxMTAgMTEyLjUgMTA0LjQgMTEyLjUgOTcuNUMxMTIuNSA5MC42IDEwNi45IDg1IDEwMCA4NVoiIGZpbGw9IiM2QjcyODAiLz48cGF0aCBkPSJNMTQwIDUwSDYwQzU0LjUgNTAgNTAgNTQuNSA1MCA2MFYxNDBDNTAgMTQ1LjUgNTQuNSAxNTAgNjAgMTUwSDE0MEMxNDUuNSAxNTAgMTUwIDE0NS41IDE1MCAxNDBWNjBDMTUwIDU0LjUgMTQ1LjUgNTAgMTQwIDUwWk0xNDIuNSAxNDBDMTQyLjUgMTQxLjQgMTQxLjQgMTQyLjUgMTQwIDE0Mi41SDYwQzU4LjYgMTQyLjUgNTcuNSAxNDEuNCA1Ny41IDE0MFY2MEM1Ny41IDU4LjYgNTguNiA1Ny41IDYwIDU3LjVIMTQwQzE0MS40IDU3LjUgMTQyLjUgNTguNiAxNDIuNSA2MFYxNDBaIiBmaWxsPSIjNkI3MjgwIi8+PC9zdmc+"
-                }}
-              />
-              <p className="text-xl font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {showArchived ? 'No archived todo lists found' : 'No todo lists yet'}
-              </p>
-              <p className="text-gray-500 dark:text-gray-400">
-                {showArchived 
-                  ? 'You haven\'t archived any lists yet.' 
-                  : 'Click the "New List" button to create your first todo list.'}
-              </p>
+          
+          {loading ? (
+            <div className="flex justify-center my-12">
+              <Spinner size="xl" />
             </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto">
-            {filteredTodoLists.map(todoList => (
-              <TodoList
-                key={todoList.id}
-                todoList={todoList}
-                onArchive={handleArchiveList}
-                onDelete={handleDeleteList}
-                onAddItem={handleAddItem}
-                onUpdateItem={handleUpdateItem}
-                onDeleteItem={handleDeleteItem}
-                onAddReminder={handleAddReminder}
-              />
-            ))}
-          </div>
-        )}
+          ) : filteredTodoLists.length === 0 ? (
+            <div className="text-center my-12 p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+              <div className="flex flex-col items-center justify-center">
+                <img 
+                  src={showArchived ? "/empty-archive.svg" : "/empty-list.svg"} 
+                  alt={showArchived ? "No archived lists" : "No active lists"} 
+                  className="w-64 h-64 mb-4 opacity-80"
+                  onError={(e) => {
+                    // Fallback to a default SVG if the image fails to load
+                    e.currentTarget.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTAwIDcwQzg0LjUgNzAgNzIgODIuNSA3MiA5OEM3MiAxMTMuNSA4NC41IDEyNiAxMDAgMTI2QzExNS41IDEyNiAxMjggMTEzLjUgMTI4IDk4QzEyOCA4Mi41IDExNS41IDcwIDEwMCA3MFpNMTAwIDExOEM4OS4xIDE1MCA3OS41IDExOCA3OS41IDk4Qzc5LjUgODYuNiA4OC42IDc3LjUgMTAwIDc3LjVDMTExLjQgNzcuNSAxMjAuNSA4Ni42IDEyMC41IDk4QzEyMC41IDEwOS40IDExMS40IDExOCAxMDAgMTE4WiIgZmlsbD0iIzZCNzI4MCIvPjxwYXRoIGQ9Ik0xMDAgODVDOTMuMSA4NSA4Ny41IDkwLjYgODcuNSA5Ny41Qzg3LjUgMTA0LjQgOTMuMSAxMTAgMTAwIDExMEMxMDYuOSAxMTAgMTEyLjUgMTA0LjQgMTEyLjUgOTcuNUMxMTIuNSA5MC42IDEwNi45IDg1IDEwMCA4NVoiIGZpbGw9IiM2QjcyODAiLz48cGF0aCBkPSJNMTQwIDUwSDYwQzU0LjUgNTAgNTAgNTQuNSA1MCA2MFYxNDBDNTAgMTQ1LjUgNTQuNSAxNTAgNjAgMTUwSDE0MEMxNDUuNSAxNTAgMTUwIDE0NS41IDE1MCAxNDBWNjBDMTUwIDU0LjUgMTQ1LjUgNTAgMTQwIDUwWk0xNDIuNSAxNDBDMTQyLjUgMTQxLjQgMTQxLjQgMTQyLjUgMTQwIDE0Mi41SDYwQzU4LjYgMTQyLjUgNTcuNSAxNDEuNCA1Ny41IDE0MFY2MEM1Ny41IDU4LjYgNTguNiA1Ny41IDYwIDU3LjVIMTQwQzE0MS40IDU3LjUgMTQyLjUgNTguNiAxNDIuNSA2MFYxNDBaIiBmaWxsPSIjNkI3MjgwIi8+PC9zdmc+"
+                  }}
+                />
+                <h3 className="text-xl font-semibold mb-2">
+                  {showArchived ? 'No archived lists' : 'No todo lists yet'}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {showArchived 
+                    ? 'You don\'t have any archived lists.' 
+                    : 'Click the "New List" button to create your first todo list.'}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredTodoLists.map((todoList) => (
+                <TodoList
+                  key={todoList.id}
+                  todoList={todoList}
+                  onArchive={handleArchiveList}
+                  onDelete={handleDeleteList}
+                  onAddItem={handleAddItem}
+                  onUpdateItem={handleUpdateItem}
+                  onDeleteItem={handleDeleteItem}
+                  onAddReminder={handleAddReminder}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

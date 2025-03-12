@@ -6,6 +6,7 @@ import redis from '@/lib/redis';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const sessionId = request.headers.get('x-session-id') || '';
     
     const { reminderAt, todoItemId } = body;
     
@@ -20,14 +21,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'todoItemId is required' }, { status: 400 });
     }
     
-    // Verify the todo item exists
+    // Verify the todo item exists and belongs to the current session
     const todoItem = await prisma.todoItem.findUnique({
-      where: { id: todoItemId }
+      where: { id: todoItemId },
+      include: { todoList: true }
     });
     
     if (!todoItem) {
       console.error(`❌ Todo item not found with ID: ${todoItemId}`);
       return NextResponse.json({ error: 'Todo item not found' }, { status: 404 });
+    }
+    
+    // Verify that the todo item belongs to the current session
+    if (todoItem.todoList.sessionId && todoItem.todoList.sessionId !== sessionId) {
+      return NextResponse.json({ error: 'Unauthorized access to todo item' }, { status: 403 });
     }
     
     // Parse the reminder date
@@ -59,18 +66,8 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(reminder, { status: 201 });
   } catch (error) {
-    console.error('❌ Error creating reminder:', error);
-    
-    // Log more details about the error
-    if (error instanceof Error) {
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-    }
-    
-    return NextResponse.json({ 
-      error: 'Failed to create reminder',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error('Error creating reminder:', error);
+    return NextResponse.json({ error: 'Failed to create reminder' }, { status: 500 });
   }
 }
 

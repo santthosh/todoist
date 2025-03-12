@@ -5,9 +5,24 @@ import prisma from '@/lib/db';
 export async function POST(request: NextRequest) {
   try {
     const { title, description, dueDate, todoListId } = await request.json();
+    const sessionId = request.headers.get('x-session-id') || '';
     
     if (!title || !todoListId) {
       return NextResponse.json({ error: 'Title and todoListId are required' }, { status: 400 });
+    }
+    
+    // Verify that the todo list belongs to the current session
+    const todoList = await prisma.todoList.findUnique({
+      where: { id: todoListId }
+    });
+    
+    if (!todoList) {
+      return NextResponse.json({ error: 'Todo list not found' }, { status: 404 });
+    }
+    
+    // Verify that the todo list belongs to the current session
+    if (todoList.sessionId && todoList.sessionId !== sessionId) {
+      return NextResponse.json({ error: 'Unauthorized access to todo list' }, { status: 403 });
     }
     
     const todoItem = await prisma.todoItem.create({

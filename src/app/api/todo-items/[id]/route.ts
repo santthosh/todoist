@@ -4,23 +4,29 @@ import prisma from '@/lib/db';
 // GET /api/todo-items/[id] - Get a specific todo item
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } | Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    // Await params if it's a promise
-    const resolvedParams = await Promise.resolve(params);
+    const id = params.id;
+    const sessionId = request.headers.get('x-session-id') || '';
     
     const todoItem = await prisma.todoItem.findUnique({
       where: {
-        id: resolvedParams.id,
+        id,
       },
       include: {
+        todoList: true,
         reminders: true,
       },
     });
     
     if (!todoItem) {
       return NextResponse.json({ error: 'Todo item not found' }, { status: 404 });
+    }
+    
+    // Verify that the todo item belongs to the current session
+    if (todoItem.todoList.sessionId && todoItem.todoList.sessionId !== sessionId) {
+      return NextResponse.json({ error: 'Unauthorized access to todo item' }, { status: 403 });
     }
     
     return NextResponse.json(todoItem);
@@ -33,24 +39,31 @@ export async function GET(
 // PATCH /api/todo-items/[id] - Update a todo item
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } | Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    // Await params if it's a promise
-    const resolvedParams = await Promise.resolve(params);
+    const id = params.id;
+    const sessionId = request.headers.get('x-session-id') || '';
+    const data = await request.json();
     
-    const { title, description, isCompleted, dueDate } = await request.json();
+    // First, check if the todo item exists and belongs to the current session
+    const existingItem = await prisma.todoItem.findUnique({
+      where: { id },
+      include: { todoList: true }
+    });
+    
+    if (!existingItem) {
+      return NextResponse.json({ error: 'Todo item not found' }, { status: 404 });
+    }
+    
+    // Verify that the todo item belongs to the current session
+    if (existingItem.todoList.sessionId && existingItem.todoList.sessionId !== sessionId) {
+      return NextResponse.json({ error: 'Unauthorized access to todo item' }, { status: 403 });
+    }
     
     const todoItem = await prisma.todoItem.update({
-      where: {
-        id: resolvedParams.id,
-      },
-      data: {
-        title,
-        description,
-        isCompleted,
-        dueDate: dueDate ? new Date(dueDate) : undefined,
-      },
+      where: { id },
+      data,
     });
     
     return NextResponse.json(todoItem);
@@ -63,16 +76,29 @@ export async function PATCH(
 // DELETE /api/todo-items/[id] - Delete a todo item
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } | Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    // Await params if it's a promise
-    const resolvedParams = await Promise.resolve(params);
+    const id = params.id;
+    const sessionId = request.headers.get('x-session-id') || '';
+    
+    // First, check if the todo item exists and belongs to the current session
+    const existingItem = await prisma.todoItem.findUnique({
+      where: { id },
+      include: { todoList: true }
+    });
+    
+    if (!existingItem) {
+      return NextResponse.json({ error: 'Todo item not found' }, { status: 404 });
+    }
+    
+    // Verify that the todo item belongs to the current session
+    if (existingItem.todoList.sessionId && existingItem.todoList.sessionId !== sessionId) {
+      return NextResponse.json({ error: 'Unauthorized access to todo item' }, { status: 403 });
+    }
     
     await prisma.todoItem.delete({
-      where: {
-        id: resolvedParams.id,
-      },
+      where: { id },
     });
     
     return new NextResponse(null, { status: 204 });

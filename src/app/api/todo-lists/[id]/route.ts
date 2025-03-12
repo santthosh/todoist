@@ -4,30 +4,35 @@ import prisma from '@/lib/db';
 // GET /api/todo-lists/[id] - Get a specific todo list
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } | Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    // Await params if it's a promise
-    const resolvedParams = await Promise.resolve(params);
+    const id = params.id;
+    const sessionId = request.headers.get('x-session-id') || '';
     
     const todoList = await prisma.todoList.findUnique({
       where: {
-        id: resolvedParams.id,
+        id,
       },
       include: {
         items: {
           include: {
-            reminders: true,
+            reminders: true
           },
           orderBy: {
-            createdAt: 'desc',
-          },
-        },
+            createdAt: 'desc'
+          }
+        }
       },
     });
     
     if (!todoList) {
       return NextResponse.json({ error: 'Todo list not found' }, { status: 404 });
+    }
+    
+    // Verify that the todo list belongs to the current session
+    if (todoList.sessionId && todoList.sessionId !== sessionId) {
+      return NextResponse.json({ error: 'Unauthorized access to todo list' }, { status: 403 });
     }
     
     return NextResponse.json(todoList);
@@ -40,23 +45,30 @@ export async function GET(
 // PATCH /api/todo-lists/[id] - Update a todo list
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } | Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    // Await params if it's a promise
-    const resolvedParams = await Promise.resolve(params);
+    const id = params.id;
+    const sessionId = request.headers.get('x-session-id') || '';
+    const data = await request.json();
     
-    const { title, description, isArchived } = await request.json();
+    // First, check if the todo list exists and belongs to the current session
+    const existingList = await prisma.todoList.findUnique({
+      where: { id }
+    });
+    
+    if (!existingList) {
+      return NextResponse.json({ error: 'Todo list not found' }, { status: 404 });
+    }
+    
+    // Verify that the todo list belongs to the current session
+    if (existingList.sessionId && existingList.sessionId !== sessionId) {
+      return NextResponse.json({ error: 'Unauthorized access to todo list' }, { status: 403 });
+    }
     
     const todoList = await prisma.todoList.update({
-      where: {
-        id: resolvedParams.id,
-      },
-      data: {
-        title,
-        description,
-        isArchived,
-      },
+      where: { id },
+      data,
     });
     
     return NextResponse.json(todoList);
@@ -69,16 +81,28 @@ export async function PATCH(
 // DELETE /api/todo-lists/[id] - Delete a todo list
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } | Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    // Await params if it's a promise
-    const resolvedParams = await Promise.resolve(params);
+    const id = params.id;
+    const sessionId = request.headers.get('x-session-id') || '';
+    
+    // First, check if the todo list exists and belongs to the current session
+    const existingList = await prisma.todoList.findUnique({
+      where: { id }
+    });
+    
+    if (!existingList) {
+      return NextResponse.json({ error: 'Todo list not found' }, { status: 404 });
+    }
+    
+    // Verify that the todo list belongs to the current session
+    if (existingList.sessionId && existingList.sessionId !== sessionId) {
+      return NextResponse.json({ error: 'Unauthorized access to todo list' }, { status: 403 });
+    }
     
     await prisma.todoList.delete({
-      where: {
-        id: resolvedParams.id,
-      },
+      where: { id },
     });
     
     return new NextResponse(null, { status: 204 });

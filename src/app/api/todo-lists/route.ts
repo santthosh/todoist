@@ -2,9 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 
 // GET /api/todo-lists - Get all todo lists
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Get the session ID from the request headers
+    const sessionId = request.headers.get('x-session-id') || '';
+    
+    // Only fetch todo lists for the current session
     const todoLists = await prisma.todoList.findMany({
+      where: {
+        sessionId: sessionId
+      },
       include: {
         items: {
           include: {
@@ -36,10 +43,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
     
+    // Get the session ID from the request headers
+    const sessionId = request.headers.get('x-session-id') || '';
+    
     const todoList = await prisma.todoList.create({
       data: {
         title,
         description,
+        sessionId
       },
     });
     
