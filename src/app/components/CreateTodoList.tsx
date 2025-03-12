@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Button, Card, Label, TextInput, Textarea } from 'flowbite-react';
+import { HiPlus } from 'react-icons/hi';
 
 interface CreateTodoListProps {
   onCreateList: (title: string, description?: string) => void;
@@ -21,60 +23,72 @@ export function CreateTodoList({ onCreateList }: CreateTodoListProps) {
     }
   };
 
+  const generateFriendlyDateTime = () => {
+    const now = new Date();
+    
+    // Format: "Todo List - March 12, 2024 at 10:30 AM"
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    };
+    
+    // Add a unique timestamp suffix to avoid duplicates
+    const timestamp = now.getTime().toString().slice(-4);
+    return `Todo List - ${now.toLocaleDateString('en-US', options)} (${timestamp})`;
+  };
+
+  const handleStartCreating = () => {
+    setTitle(generateFriendlyDateTime());
+    setIsCreating(true);
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <Card className="mb-6">
       {isCreating ? (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-xl font-bold mb-4">Create New Task List</h2>
+          <h2 className="text-xl font-bold mb-4">Create New Todo List</h2>
           <div>
-            <label htmlFor="title" className="block text-sm font-medium mb-1">
-              Title
-            </label>
-            <input
+            <Label htmlFor="title" value="Title" />
+            <TextInput
               id="title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
               required
             />
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm font-medium mb-1">
-              Description (optional)
-            </label>
-            <textarea
+            <Label htmlFor="description" value="Description (optional)" />
+            <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
               rows={3}
             />
           </div>
           <div className="flex space-x-2">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-            >
+            <Button type="submit" color="blue">
               Create List
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsCreating(false)}
-              className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
-            >
+            </Button>
+            <Button color="gray" onClick={() => setIsCreating(false)}>
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       ) : (
-        <button
-          onClick={() => setIsCreating(true)}
-          className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded text-center transition"
+        <Button
+          color="blue"
+          onClick={handleStartCreating}
+          className="w-full"
         >
-          + Create New Task List
-        </button>
+          <HiPlus className="mr-1" />
+          Create New Todo List
+        </Button>
       )}
-    </div>
+    </Card>
   );
 } 

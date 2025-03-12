@@ -38,11 +38,11 @@ describe('TodoItem Component', () => {
     
     expect(screen.getByText('Test Item')).toBeInTheDocument();
     expect(screen.getByText('Test Description')).toBeInTheDocument();
-    expect(screen.getByText('Due Date:')).toBeInTheDocument();
+    expect(screen.getByText('Due:')).toBeInTheDocument();
     expect(screen.getByRole('checkbox')).not.toBeChecked();
     expect(screen.getByText('Edit')).toBeInTheDocument();
     expect(screen.getByText('Delete')).toBeInTheDocument();
-    expect(screen.getByText('+ Add Reminder')).toBeInTheDocument();
+    expect(screen.getByText('Add Reminder')).toBeInTheDocument();
   });
 
   it('calls onUpdate when checkbox is clicked', () => {
@@ -140,10 +140,10 @@ describe('TodoItem Component', () => {
       />
     );
     
-    fireEvent.click(screen.getByText('+ Add Reminder'));
+    fireEvent.click(screen.getByText('Add Reminder'));
     
     expect(screen.getByText('Set Reminder')).toBeInTheDocument();
-    expect(screen.queryByText('+ Add Reminder')).not.toBeInTheDocument();
+    expect(screen.queryByText('Add Reminder')).not.toBeInTheDocument();
   });
 
   it('does not show add reminder button when item already has reminders', () => {
@@ -169,7 +169,7 @@ describe('TodoItem Component', () => {
       />
     );
     
-    expect(screen.queryByText('+ Add Reminder')).not.toBeInTheDocument();
+    expect(screen.queryByText('Add Reminder')).not.toBeInTheDocument();
     expect(screen.getByText('Reminder:')).toBeInTheDocument();
   });
 }); 

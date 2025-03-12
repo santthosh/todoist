@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { TodoItemType } from '@/types';
+import { Button, Card, Checkbox, Label, TextInput, Textarea } from 'flowbite-react';
+import { HiPencil, HiTrash, HiPlus, HiClock } from 'react-icons/hi';
 
 interface TodoItemProps {
   item: TodoItemType;
@@ -53,57 +55,55 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
     return date.toLocaleString(undefined, options);
   };
 
+  const isPastDue = item.dueDate && new Date(item.dueDate) < new Date();
+
   return (
-    <div className={`border-b pb-4 mb-4 ${item.isCompleted ? 'opacity-60' : ''}`}>
+    <Card className={`mb-4 ${item.isCompleted ? 'opacity-60' : ''}`}>
       {isEditing ? (
         <form onSubmit={handleUpdate} className="space-y-3">
           <div>
-            <input
+            <Label htmlFor="title" value="Title" />
+            <TextInput
+              id="title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
               required
             />
           </div>
           <div>
-            <textarea
+            <Label htmlFor="description" value="Description (optional)" />
+            <Textarea
+              id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
               placeholder="Description (optional)"
+              rows={3}
             />
           </div>
           <div>
-            <input
+            <Label htmlFor="dueDate" value="Due Date (optional)" />
+            <TextInput
+              id="dueDate"
               type="datetime-local"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
             />
           </div>
           <div className="flex space-x-2">
-            <button
-              type="submit"
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-            >
+            <Button type="submit" color="blue">
               Save
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsEditing(false)}
-              className="px-3 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
-            >
+            </Button>
+            <Button color="gray" onClick={() => setIsEditing(false)}>
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       ) : (
         <div>
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-2">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={item.isCompleted}
                 onChange={handleToggleComplete}
                 className="mt-1"
@@ -119,8 +119,8 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
                 )}
                 {item.dueDate && (
                   <p className="text-gray-500 dark:text-gray-400 text-xs mt-1 flex items-center">
-                    <span className="font-semibold mr-1">Due Date:</span> 
-                    <span className={`${new Date(item.dueDate) < new Date() ? 'text-red-500' : ''}`}>
+                    <span className="font-semibold mr-1">Due:</span> 
+                    <span className={isPastDue ? 'text-red-500' : ''}>
                       {formatDate(item.dueDate)}
                     </span>
                   </p>
@@ -128,7 +128,10 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
                 
                 {item.reminders && item.reminders.length > 0 && (
                   <div className="mt-2">
-                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">Reminder{item.reminders.length > 1 ? 's' : ''}:</p>
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center">
+                      <HiClock className="mr-1" />
+                      Reminder{item.reminders.length > 1 ? 's' : ''}:
+                    </p>
                     <ul className="text-xs text-gray-500 dark:text-gray-400 ml-4 list-disc">
                       {item.reminders.map((reminder) => (
                         <li key={reminder.id}>{formatDate(reminder.reminderAt, true)}</li>
@@ -139,18 +142,14 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
               </div>
             </div>
             <div className="flex space-x-2">
-              <button
-                onClick={() => setIsEditing(true)}
-                className="text-blue-500 hover:text-blue-700 transition"
-              >
+              <Button size="xs" color="blue" pill onClick={() => setIsEditing(true)}>
+                <HiPencil className="mr-1" />
                 Edit
-              </button>
-              <button
-                onClick={() => onDelete(item.id)}
-                className="text-red-500 hover:text-red-700 transition"
-              >
+              </Button>
+              <Button size="xs" color="red" pill onClick={() => onDelete(item.id)}>
+                <HiTrash className="mr-1" />
                 Delete
-              </button>
+              </Button>
             </div>
           </div>
           
@@ -159,44 +158,42 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
               const hasNoReminders = !item.reminders || !Array.isArray(item.reminders) || item.reminders.length === 0;
                
               return hasNoReminders ? (
-                <button
+                <Button
+                  size="xs"
+                  color="green"
+                  pill
+                  className="mt-2"
                   onClick={() => setIsAddingReminder(true)}
-                  className="mt-2 text-sm text-green-500 hover:text-green-700 transition"
                 >
-                  + Add Reminder
-                </button>
+                  <HiPlus className="mr-1" />
+                  Add Reminder
+                </Button>
               ) : null;
             })()
           ) : (
             <form onSubmit={handleAddReminder} className="mt-3 space-y-3">
               <div>
-                <input
+                <Label htmlFor="reminderAt" value="Reminder Date & Time" />
+                <TextInput
+                  id="reminderAt"
                   type="datetime-local"
                   value={reminderAt}
                   onChange={(e) => setReminderAt(e.target.value)}
-                  className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
                   required
                 />
               </div>
               <div className="flex space-x-2">
-                <button
-                  type="submit"
-                  className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition"
-                >
+                <Button type="submit" color="green" size="sm">
                   Set Reminder
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsAddingReminder(false)}
-                  className="px-3 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
-                >
+                </Button>
+                <Button color="gray" size="sm" onClick={() => setIsAddingReminder(false)}>
                   Cancel
-                </button>
+                </Button>
               </div>
             </form>
           )}
         </div>
       )}
-    </div>
+    </Card>
   );
 } 

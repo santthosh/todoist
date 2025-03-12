@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { TodoList } from './components/TodoList';
 import { CreateTodoList } from './components/CreateTodoList';
 import { TodoListType, TodoItemType } from '@/types';
+import { Button, Alert, Spinner, Badge, DarkThemeToggle } from 'flowbite-react';
+import { HiArchive, HiInbox } from 'react-icons/hi';
 
 export default function Home() {
   const [todoLists, setTodoLists] = useState<TodoListType[]>([]);
@@ -187,35 +189,50 @@ export default function Home() {
   const filteredTodoLists = todoLists.filter(list => showArchived ? list.isArchived : !list.isArchived);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <div className="container mx-auto py-8 px-4 max-w-4xl">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Todoist</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage your tasks and reminders</p>
+        <header className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Todoist</h1>
+            <p className="text-gray-600 dark:text-gray-400">Manage your tasks and reminders</p>
+          </div>
+          <DarkThemeToggle />
         </header>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          <Alert color="failure" className="mb-6">
             {error}
-          </div>
+          </Alert>
         )}
 
         <div className="mb-6 flex justify-between items-center">
-          <button
+          <Button
+            color={showArchived ? "light" : "gray"}
             onClick={() => setShowArchived(!showArchived)}
-            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
           >
-            {showArchived ? 'Show Active Lists' : 'Show Archived Lists'}
-          </button>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {showArchived ? (
+              <>
+                <HiInbox className="mr-2" />
+                Show Active Lists
+              </>
+            ) : (
+              <>
+                <HiArchive className="mr-2" />
+                Show Archived Lists
+              </>
+            )}
+          </Button>
+          <Badge color={showArchived ? "yellow" : "blue"}>
             {showArchived ? 'Viewing archived lists' : 'Viewing active lists'}
-          </span>
+          </Badge>
         </div>
 
         <CreateTodoList onCreateList={handleCreateList} />
 
         {loading ? (
-          <div className="text-center py-8">Loading...</div>
+          <div className="text-center py-8">
+            <Spinner size="xl" />
+          </div>
         ) : filteredTodoLists.length === 0 ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             {showArchived

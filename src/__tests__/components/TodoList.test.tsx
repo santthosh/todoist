@@ -64,7 +64,7 @@ describe('TodoList Component', () => {
     const header = screen.getByText('Test List').closest('div');
     expect(within(header).getByText('Delete')).toBeInTheDocument();
     
-    expect(screen.getByText('+ Add Item')).toBeInTheDocument();
+    expect(screen.getByText('Add Item')).toBeInTheDocument();
   });
 
   it('calls onArchive when archive button is clicked', () => {
@@ -120,12 +120,12 @@ describe('TodoList Component', () => {
       />
     );
     
-    fireEvent.click(screen.getByText('+ Add Item'));
+    fireEvent.click(screen.getByText('Add Item'));
     
-    expect(screen.getByPlaceholderText('Item title')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Description (optional)')).toBeInTheDocument();
-    expect(screen.getByText('Add Item')).toBeInTheDocument();
-    expect(screen.getByText('Cancel')).toBeInTheDocument();
+    expect(screen.getByLabelText('Item Title')).toBeInTheDocument();
+    expect(screen.getByLabelText('Description (optional)')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add Item' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
   });
 
   it('calls onAddItem when add item form is submitted', () => {
@@ -141,16 +141,16 @@ describe('TodoList Component', () => {
       />
     );
     
-    fireEvent.click(screen.getByText('+ Add Item'));
+    fireEvent.click(screen.getByText('Add Item'));
     
-    fireEvent.change(screen.getByPlaceholderText('Item title'), { 
+    fireEvent.change(screen.getByLabelText('Item Title'), { 
       target: { value: 'New Item' } 
     });
-    fireEvent.change(screen.getByPlaceholderText('Description (optional)'), { 
+    fireEvent.change(screen.getByLabelText('Description (optional)'), { 
       target: { value: 'New Item Description' } 
     });
     
-    fireEvent.click(screen.getByText('Add Item'));
+    fireEvent.click(screen.getByRole('button', { name: 'Add Item' }));
     
     expect(mockOnAddItem).toHaveBeenCalledTimes(1);
     expect(mockOnAddItem).toHaveBeenCalledWith(

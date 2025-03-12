@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { TodoItem } from '@/app/components/TodoItem';
 import { TodoListType, TodoItemType } from '@/types';
+import { Button, Card, Label, TextInput, Textarea } from 'flowbite-react';
+import { HiArchive, HiTrash, HiPlus } from 'react-icons/hi';
 
 interface TodoListProps {
   todoList: TodoListType;
@@ -39,23 +41,51 @@ export function TodoList({
     }
   };
 
+  const generateFriendlyDateTime = () => {
+    const now = new Date();
+    
+    // Format: "Todo - Monday, March 12 at 10:30:45 AM"
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    };
+    
+    // Add a unique timestamp suffix to avoid duplicates
+    const timestamp = now.getTime().toString().slice(-4);
+    return `Todo - ${now.toLocaleDateString('en-US', options)} (${timestamp})`;
+  };
+
+  const handleStartAddingItem = () => {
+    setNewItemTitle(generateFriendlyDateTime());
+    setIsAddingItem(true);
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <Card className="mb-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">{todoList.title}</h2>
         <div className="flex space-x-2">
-          <button
+          <Button
+            color={todoList.isArchived ? "warning" : "yellow"}
+            size="sm"
             onClick={() => onArchive(todoList.id)}
-            className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
           >
+            <HiArchive className="mr-1" />
             {todoList.isArchived ? 'Unarchive' : 'Archive'}
-          </button>
-          <button
+          </Button>
+          <Button
+            color="red"
+            size="sm"
             onClick={() => onDelete(todoList.id)}
-            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
           >
+            <HiTrash className="mr-1" />
             Delete
-          </button>
+          </Button>
         </div>
       </div>
       
@@ -78,55 +108,54 @@ export function TodoList({
       {isAddingItem ? (
         <form onSubmit={handleAddItem} className="space-y-3">
           <div>
-            <input
+            <Label htmlFor="newItemTitle" value="Item Title" />
+            <TextInput
+              id="newItemTitle"
               type="text"
               value={newItemTitle}
               onChange={(e) => setNewItemTitle(e.target.value)}
               placeholder="Item title"
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
               required
             />
           </div>
           <div>
-            <textarea
+            <Label htmlFor="newItemDescription" value="Description (optional)" />
+            <Textarea
+              id="newItemDescription"
               value={newItemDescription}
               onChange={(e) => setNewItemDescription(e.target.value)}
               placeholder="Description (optional)"
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+              rows={3}
             />
           </div>
           <div>
-            <input
+            <Label htmlFor="newItemDueDate" value="Due Date (optional)" />
+            <TextInput
+              id="newItemDueDate"
               type="datetime-local"
               value={newItemDueDate}
               onChange={(e) => setNewItemDueDate(e.target.value)}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
             />
           </div>
           <div className="flex space-x-2">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-            >
+            <Button type="submit" color="blue">
               Add Item
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsAddingItem(false)}
-              className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
-            >
+            </Button>
+            <Button color="gray" onClick={() => setIsAddingItem(false)}>
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       ) : (
-        <button
-          onClick={() => setIsAddingItem(true)}
-          className="w-full py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded text-center transition"
+        <Button
+          color="gray"
+          onClick={handleStartAddingItem}
+          className="w-full"
         >
-          + Add Item
-        </button>
+          <HiPlus className="mr-1" />
+          Add Item
+        </Button>
       )}
-    </div>
+    </Card>
   );
 } 
