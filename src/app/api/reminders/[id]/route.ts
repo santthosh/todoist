@@ -5,12 +5,15 @@ import redis from '@/lib/redis';
 // GET /api/reminders/[id] - Get a specific reminder
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
+    // Await params if it's a promise
+    const resolvedParams = await Promise.resolve(params);
+    
     const reminder = await prisma.reminder.findUnique({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
       include: {
         todoItem: true,
@@ -31,14 +34,17 @@ export async function GET(
 // PATCH /api/reminders/[id] - Update a reminder
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
+    // Await params if it's a promise
+    const resolvedParams = await Promise.resolve(params);
+    
     const { reminderAt } = await request.json();
     
     const reminder = await prisma.reminder.update({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
       data: {
         reminderAt: new Date(reminderAt),
@@ -71,17 +77,20 @@ export async function PATCH(
 // DELETE /api/reminders/[id] - Delete a reminder
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
+    // Await params if it's a promise
+    const resolvedParams = await Promise.resolve(params);
+    
     await prisma.reminder.delete({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
     });
     
     // Remove from Redis
-    await redis.del(`reminder:${params.id}`);
+    await redis.del(`reminder:${resolvedParams.id}`);
     
     return new NextResponse(null, { status: 204 });
   } catch (error) {

@@ -4,12 +4,15 @@ import prisma from '@/lib/db';
 // GET /api/todo-items/[id] - Get a specific todo item
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
+    // Await params if it's a promise
+    const resolvedParams = await Promise.resolve(params);
+    
     const todoItem = await prisma.todoItem.findUnique({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
       include: {
         reminders: true,
@@ -30,14 +33,17 @@ export async function GET(
 // PATCH /api/todo-items/[id] - Update a todo item
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
+    // Await params if it's a promise
+    const resolvedParams = await Promise.resolve(params);
+    
     const { title, description, isCompleted, dueDate } = await request.json();
     
     const todoItem = await prisma.todoItem.update({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
       data: {
         title,
@@ -57,12 +63,15 @@ export async function PATCH(
 // DELETE /api/todo-items/[id] - Delete a todo item
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
+    // Await params if it's a promise
+    const resolvedParams = await Promise.resolve(params);
+    
     await prisma.todoItem.delete({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
     });
     

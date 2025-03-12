@@ -4,12 +4,15 @@ import prisma from '@/lib/db';
 // GET /api/todo-lists/[id] - Get a specific todo list
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
+    // Await params if it's a promise
+    const resolvedParams = await Promise.resolve(params);
+    
     const todoList = await prisma.todoList.findUnique({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
       include: {
         items: {
@@ -37,14 +40,17 @@ export async function GET(
 // PATCH /api/todo-lists/[id] - Update a todo list
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
+    // Await params if it's a promise
+    const resolvedParams = await Promise.resolve(params);
+    
     const { title, description, isArchived } = await request.json();
     
     const todoList = await prisma.todoList.update({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
       data: {
         title,
@@ -63,12 +69,15 @@ export async function PATCH(
 // DELETE /api/todo-lists/[id] - Delete a todo list
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
+    // Await params if it's a promise
+    const resolvedParams = await Promise.resolve(params);
+    
     await prisma.todoList.delete({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
       },
     });
     
