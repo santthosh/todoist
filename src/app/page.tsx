@@ -20,7 +20,6 @@ export default function Home() {
         throw new Error('Failed to fetch todo lists');
       }
       const data = await response.json();
-      console.log('📋 Fetched todo lists:', JSON.stringify(data, null, 2));
       setTodoLists(data);
       setError(null);
     } catch (err) {

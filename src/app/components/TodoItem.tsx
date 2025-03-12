@@ -18,8 +18,6 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
   const [isAddingReminder, setIsAddingReminder] = useState(false);
   const [reminderAt, setReminderAt] = useState('');
 
-  console.log('📦 Todo item:', JSON.stringify(item, null, 2));
-
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdate(item.id, { title, description, dueDate });
@@ -30,19 +28,9 @@ export function TodoItem({ item, onUpdate, onDelete, onAddReminder }: TodoItemPr
     onUpdate(item.id, { isCompleted: !item.isCompleted });
   };
 
-  const handleAddReminder = async (e: React.FormEvent) => {
+  const handleAddReminder = (e: React.FormEvent) => {
     e.preventDefault();
     if (reminderAt) {
-      console.log('Adding reminder:', { todoItemId: item.id, reminderAt });
-      const response = await fetch('/api/reminders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ todoItemId: item.id, reminderAt }),
-      });
-      const data = await response.json();
-      console.log('Reminder created:', data);
       onAddReminder(item.id, reminderAt);
       setReminderAt('');
       setIsAddingReminder(false);

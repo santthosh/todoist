@@ -82,6 +82,30 @@ To stop and remove all data volumes:
 docker-compose down -v
 ```
 
+## Testing
+
+This project includes comprehensive unit tests for components and API routes. The tests are written using Jest and React Testing Library.
+
+### Running Tests
+
+To run the tests:
+
+```bash
+npm test
+```
+
+To run tests in watch mode (useful during development):
+
+```bash
+npm run test:watch
+```
+
+### Test Structure
+
+- `src/__tests__/components/` - Tests for React components
+- `src/__tests__/api/` - Tests for API routes
+- `src/__tests__/utils/` - Tests for utility functions
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

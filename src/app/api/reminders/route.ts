@@ -4,11 +4,8 @@ import redis from '@/lib/redis';
 
 // POST /api/reminders - Create a new reminder
 export async function POST(request: NextRequest) {
-  console.log('🔍 POST /api/reminders - Request received');
-  
   try {
     const body = await request.json();
-    console.log('📥 Request body:', JSON.stringify(body, null, 2));
     
     const { reminderAt, todoItemId } = body;
     
@@ -24,7 +21,6 @@ export async function POST(request: NextRequest) {
     }
     
     // Verify the todo item exists
-    console.log(`🔍 Checking if todo item exists: ${todoItemId}`);
     const todoItem = await prisma.todoItem.findUnique({
       where: { id: todoItemId }
     });
@@ -34,14 +30,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Todo item not found' }, { status: 404 });
     }
     
-    console.log(`✅ Todo item found: ${todoItem.title}`);
-    
     // Parse the reminder date
     const reminderDate = new Date(reminderAt);
-    console.log(`📅 Reminder date parsed as: ${reminderDate.toISOString()}`);
     
     // Create the reminder
-    console.log('💾 Creating reminder in database...');
     const reminder = await prisma.reminder.create({
       data: {
         reminderAt: reminderDate,
@@ -52,12 +44,8 @@ export async function POST(request: NextRequest) {
       },
     });
     
-    console.log(`✅ Reminder created with ID: ${reminder.id}`);
-    console.log('📊 Reminder data:', JSON.stringify(reminder, null, 2));
-    
     // Store reminder in Redis for quick access
     const reminderKey = `reminder:${reminder.id}`;
-    console.log(`🔄 Storing reminder in Redis with key: ${reminderKey}`);
     
     await redis.set(reminderKey, JSON.stringify(reminder));
     
@@ -66,13 +54,9 @@ export async function POST(request: NextRequest) {
     const ttlSeconds = Math.floor((reminderDate.getTime() - now.getTime()) / 1000);
     
     if (ttlSeconds > 0) {
-      console.log(`⏱️ Setting Redis key to expire in ${ttlSeconds} seconds`);
       await redis.expire(reminderKey, ttlSeconds);
-    } else {
-      console.log(`⚠️ Reminder date is in the past, not setting expiration`);
     }
     
-    console.log('✅ Successfully created reminder');
     return NextResponse.json(reminder, { status: 201 });
   } catch (error) {
     console.error('❌ Error creating reminder:', error);

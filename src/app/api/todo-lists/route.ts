@@ -19,8 +19,6 @@ export async function GET() {
         createdAt: 'desc',
       },
     });
-
-    console.log('📋 Todo lists:', JSON.stringify(todoLists, null, 2));
     
     return NextResponse.json(todoLists);
   } catch (error) {
