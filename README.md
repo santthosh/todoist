@@ -17,7 +17,7 @@
     <img src="public/cloud-icon.svg" alt="Todoist Cloud Logo" width="100" height="100">
   </a>
   <h3 align="center">
-    <a href="https://todoist.cloud">Visit Todoist Cloud</a>
+    <a href="https://todoist.cloud">Visit todoist.cloud</a>
   </h3>
 </div>
 
@@ -111,9 +111,16 @@ docker-compose down -v
 
 This project includes comprehensive unit tests for components and API routes. The tests are written using Jest and React Testing Library.
 
+### Test Structure
+
+- `src/__tests__/components/` - Tests for React components
+- `src/__tests__/api/` - Tests for API routes
+- `src/__tests__/utils/` - Tests for utility functions
+- `e2e-tests/` - End-to-end tests using Playwright
+
 ### Running Tests
 
-To run the tests:
+To run the unit tests:
 
 ```bash
 npm test
@@ -125,11 +132,36 @@ To run tests in watch mode (useful during development):
 npm run test:watch
 ```
 
-### Test Structure
+To run end-to-end tests with Playwright:
 
-- `src/__tests__/components/` - Tests for React components
-- `src/__tests__/api/` - Tests for API routes
-- `src/__tests__/utils/` - Tests for utility functions
+```bash
+npm run test:e2e
+```
+
+To run end-to-end tests with UI mode (for debugging):
+
+```bash
+npm run test:e2e:ui
+```
+
+To view the Playwright test report:
+
+```bash
+npm run test:e2e:report
+```
+
+### E2E Test Coverage
+
+The end-to-end tests cover the following functionality:
+
+- **Home Page**: Verifies that the home page loads correctly and displays the expected UI elements.
+- **Todo List Creation**: Tests the creation of new todo lists.
+- **Responsive Design**: Ensures the application works correctly on different screen sizes.
+- **Theme Switching**: Verifies that the dark/light mode toggle works correctly.
+
+Some tests are currently skipped due to limitations in the test environment:
+- Tests that require navigating to list detail pages
+- Tests for reminders functionality
 
 ### Continuous Integration
 
@@ -139,6 +171,8 @@ This project uses GitHub Actions for continuous integration. Tests are automatic
 - A pull request is created targeting the `main` branch
 
 The workflow sets up a test environment with Node.js, PostgreSQL, and Redis to ensure all tests pass in an environment similar to production.
+
+Additionally, end-to-end tests are run after successful deployment to verify the application is working correctly in production.
 
 To see the status of the latest test runs, check the "Actions" tab in the GitHub repository.
 

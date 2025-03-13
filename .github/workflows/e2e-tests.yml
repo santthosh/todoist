@@ -1,0 +1,76 @@
+name: E2E Tests
+
+on:
+  # Run after deployment to production
+  workflow_run:
+    workflows: ["CI/CD"]
+    types:
+      - completed
+    branches:
+      - main
+  
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to run tests against'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+
+jobs:
+  e2e-tests:
+    name: Run E2E Tests
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      
+      - name: Determine test URL
+        id: test-url
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            ENV=${{ github.event.inputs.environment }}
+          else
+            ENV="production"
+          fi
+          
+          if [ "$ENV" == "production" ]; then
+            echo "url=https://todoist.cloud" >> $GITHUB_OUTPUT
+          elif [ "$ENV" == "staging" ]; then
+            echo "url=https://staging.todoist.cloud" >> $GITHUB_OUTPUT
+          else
+            echo "url=https://dev.todoist.cloud" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Run Playwright tests
+        run: npx playwright test --project=chromium
+        env:
+          PLAYWRIGHT_TEST_BASE_URL: ${{ steps.test-url.outputs.url }}
+          CI: true
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30 
